@@ -921,666 +921,616 @@ export default function Metropole() {
 
 
             {/* ===============================================
-                PLATEAU
-                =============================================== */}
+    PLATEAU
+    =============================================== */}
+
+<section className="metro-board-wrap">
+
+  <div
+    className="metro-board"
+    aria-label="Plateau de la Métropole"
+  >
+
+    {/* ===========================================
+        OSSATURE VISUELLE
+
+        5 rectangles indépendants :
+        - principal
+        - nord
+        - ouest
+        - est
+        - sud
+        =========================================== */}
+
+    <svg
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+
+      {/* RECTANGLE PRINCIPAL */}
+      <rect
+        x="25"
+        y="25"
+        width="40"
+        height="40"
+        className="board-outline board-main"
+      />
+
+      {/* RECTANGLE NORD */}
+      <rect
+        x="45"
+        y="7"
+        width="20"
+        height="18"
+        className="board-outline board-north"
+      />
+
+      {/* RECTANGLE OUEST */}
+      <rect
+        x="5"
+        y="25"
+        width="20"
+        height="20"
+        className="board-outline board-west"
+      />
+
+      {/* RECTANGLE EST */}
+      <rect
+        x="65"
+        y="45"
+        width="25"
+        height="20"
+        className="board-outline board-east"
+      />
+
+      {/* RECTANGLE SUD */}
+      <rect
+        x="25"
+        y="65"
+        width="20"
+        height="27"
+        className="board-outline board-south"
+      />
+
+    </svg>
+
+
+    {/* ===========================================
+        GARES / CARREFOURS
+        =========================================== */}
+
+    {Object.values(stations).map(
+      s => (
+
+        <div
+          key={s.id}
+          className="metro-node station"
+          style={nodeStyle(s)}
+          title={s.name}
+        >
+
+          <span>
+            ◆
+          </span>
+
+          <small>
+            {s.name}
+          </small>
+
+        </div>
+
+      )
+    )}
 
-            <section className="metro-board-wrap">
 
-              <div
-                className="metro-board"
-                aria-label="Plateau de la Métropole"
-              >
-
-
-                {/* ===========================================
-                    ROUTES
-
-                    NOUVEAU :
-                    les routes ne relient plus directement
-                    deux points en diagonale.
-
-                    Chaque liaison passe par un angle droit.
-                    =========================================== */}
-
-                <svg
-                    viewBox="0 0 100 100"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                    >
-                    {Object.entries(routes).map(([id, route]) => {
-
-                        const points = [
-                        stations[route.from],
-                        ...route.nodes,
-                        stations[route.to]
-                        ]
-                        .map(node => `${node.x},${node.y}`)
-                        .join(' ');
+    {/* ===========================================
+        CASES
+        =========================================== */}
 
-                        return (
-                        <polyline
-                            key={id}
-                            points={points}
-                        />
-                        );
+    {Object.values(routes)
+      .flatMap(
+        route =>
+          route.nodes
+      )
+      .map(
+        node => (
 
-                    })}
-                </svg>
+          <div
+            key={node.id}
 
+            className={
+              `metro-node ${node.type}`
+            }
 
-                {/* ===========================================
-                    GARES / CARREFOURS
-                    =========================================== */}
+            style={{
 
-                {Object.values(
-                  stations
-                ).map(
-                  s => (
+              ...nodeStyle(node),
 
-                    <div
-                      key={s.id}
-                      className="metro-node station"
-                      style={
-                        nodeStyle(s)
-                      }
-                      title={s.name}
-                    >
+              ...(node.group
+                ? {
+                    '--district':
+                      groupColors[
+                        node.group
+                      ]
+                  } as React.CSSProperties
+                : {})
 
-                      <span>
-                        ◆
-                      </span>
+            }}
 
-                      <small>
-                        {s.name}
-                      </small>
+            title={
+              `${node.name}${
+                node.price
+                  ? ` · ${node.price} M`
+                  : ''
+              }`
+            }
+          >
 
-                    </div>
+            <span>
 
-                  )
-                )}
+              {
+                node.type === 'event'
 
+                  ? '?'
 
-                {/* ===========================================
-                    CASES
-                    =========================================== */}
+                  : node.type === 'salary'
 
-                {Object.values(routes)
-                  .flatMap(
-                    route =>
-                      route.nodes
-                  )
-                  .map(
-                    node => (
+                    ? '+'
 
-                      <div
+                    : node.type === 'bank'
 
-                        key={node.id}
+                      ? 'B'
 
-                        className={
-                          `metro-node ${node.type}`
-                        }
+                      : node.type === 'company'
 
-                        style={{
+                        ? 'C'
 
-                          ...nodeStyle(node),
+                        : ''
+              }
 
-                          ...(node.group
-                            ? {
-                                '--district':
-                                  groupColors[
-                                    node.group
-                                  ]
-                              } as React.CSSProperties
-                            : {})
+            </span>
 
-                        }}
 
-                        title={
-                          `${node.name}${
-                            node.price
-                              ? ` · ${node.price} M`
-                              : ''
-                          }`
-                        }
-                      >
+            {g?.owners[node.id] && (
 
-                        <span>
+              <i
+                style={{
+                  background:
+                    TOKEN_COLORS[
+                      room.players.findIndex(
+                        p =>
+                          p.id ===
+                          g.owners[node.id]
+                      )
+                    ]
+                }}
+              />
 
-                          {
-                            node.type ===
-                            'event'
+            )}
 
-                              ? '?'
+          </div>
 
-                              : node.type ===
-                                'salary'
+        )
+      )
+    }
 
-                                ? '+'
 
-                                : node.type ===
-                                  'bank'
+    {/* ===========================================
+        PIONS
+        =========================================== */}
 
-                                  ? 'B'
+    {g &&
+      room.players.map(
+        (p, i) => {
 
-                                  : node.type ===
-                                    'company'
+          const pos =
+            positionOf(
+              g.positions[p.id]
+            );
 
-                                    ? 'C'
+          return (
 
-                                    : ''
-                          }
+            <div
+              key={p.id}
 
-                        </span>
+              className="metro-token"
 
+              style={{
 
-                        {g?.owners[
-                          node.id
-                        ] && (
+                ...nodeStyle(pos),
 
-                          <i
-                            style={{
-                              background:
-                                TOKEN_COLORS[
-                                  room.players
-                                    .findIndex(
-                                      p =>
-                                        p.id ===
-                                        g.owners[
-                                          node.id
-                                        ]
-                                    )
-                                ]
-                            }}
-                          />
+                background:
+                  TOKEN_COLORS[i],
 
-                        )}
+                transform:
+                  `translate(${
+                    (i % 3 - 1) *
+                      7 -
+                    50
+                  }%, ${
+                    Math.floor(
+                      i / 3
+                    ) *
+                      8 -
+                    50
+                  }%)`
 
-                      </div>
+              }}
 
-                    )
-                  )
-                }
+              title={p.name}
+            >
 
+              {p.name
+                .slice(0, 1)
+                .toUpperCase()}
 
-                {/* ===========================================
-                    PIONS
-                    =========================================== */}
+            </div>
 
-                {g &&
-                  room.players.map(
-                    (p, i) => {
+          );
 
-                      const pos =
-                        positionOf(
-                          g.positions[p.id]
-                        );
+        }
+      )
+    }
 
-                      return (
 
-                        <div
+    {/* ===========================================
+        LÉGENDE
+        =========================================== */}
 
-                          key={p.id}
+    <div className="board-legend">
 
-                          className="metro-token"
+      <span>
+        <i className="lg-property" />
+        Quartier
+      </span>
 
-                          style={{
+      <span>
+        <i className="lg-station" />
+        Gare
+      </span>
 
-                            ...nodeStyle(pos),
+      <span>
+        <i className="lg-company" />
+        Entreprise
+      </span>
 
-                            background:
-                              TOKEN_COLORS[i],
+      <span>
+        <i className="lg-event" />
+        Événement
+      </span>
 
-                            transform:
-                              `translate(${
-                                (i % 3 - 1) *
-                                  7 -
-                                50
-                              }%, ${
-                                Math.floor(
-                                  i / 3
-                                ) *
-                                  8 -
-                                50
-                              }%)`
+    </div>
 
-                          }}
+  </div>
 
-                          title={p.name}
-                        >
 
-                          {p.name
-                            .slice(0, 1)
-                            .toUpperCase()}
+  {/* =============================================
+      AVANT LA PARTIE
+      ============================================= */}
 
-                        </div>
+  {!g ? (
 
-                      );
+    <div className="metro-action">
 
-                    }
-                  )
-                }
+      <p>
+        Réunissez 2 à 6 investisseurs.
+      </p>
 
+      <button
+        onClick={
+          () =>
+            action('ready')
+        }
+      >
+        {me?.ready
+          ? 'Je ne suis plus prêt'
+          : 'Je suis prêt'}
+      </button>
 
-                {/* ===========================================
-                    LÉGENDE
-                    =========================================== */}
+      {room.host === room.me && (
 
-                <div className="board-legend">
+        <button
+          className="metro-light"
 
-                  <span>
-                    <i className="lg-property" />
-                    Quartier
-                  </span>
+          disabled={
+            busy ||
+            room.players.length < 2 ||
+            !room.players.every(
+              p => p.ready
+            )
+          }
 
-                  <span>
-                    <i className="lg-station" />
-                    Gare
-                  </span>
+          onClick={
+            () =>
+              action('start')
+          }
+        >
+          Lancer la partie →
+        </button>
 
-                  <span>
-                    <i className="lg-company" />
-                    Entreprise
-                  </span>
+      )}
 
-                  <span>
-                    <i className="lg-event" />
-                    Événement
-                  </span>
+    </div>
 
-                </div>
+  ) : (
 
-              </div>
+    <div className="metro-action">
 
+      <header>
 
-              {/* =============================================
-                  AVANT LA PARTIE
-                  ============================================= */}
+        <span>
+          JOUR {g.round}/20
+        </span>
 
-              {!g ? (
+        <b>
+          AU TOUR DE{' '}
+          {playerName(
+            g.current
+          ).toUpperCase()}
+        </b>
 
-                <div className="metro-action">
+        {g.rolled && (
+          <i>
+            DÉ : {g.rolled}
+          </i>
+        )}
 
-                  <p>
-                    Réunissez 2 à 6 investisseurs.
-                  </p>
+      </header>
 
 
-                  <button
-                    onClick={
-                      () =>
-                        action('ready')
-                    }
-                  >
+      <p className="city-news">
+        {g.lastEvent}
+      </p>
 
-                    {me?.ready
-                      ? 'Je ne suis plus prêt'
-                      : 'Je suis prêt'}
 
-                  </button>
+      {/* CHOIX DE ROUTE */}
 
+      {g.phase === 'route' &&
+        myTurn && (
 
-                  {room.host ===
-                    room.me && (
+        <>
 
-                    <button
-                      className="metro-light"
+          <h3>
+            Quelle direction prenez-vous ?
+          </h3>
 
-                      disabled={
-                        busy ||
-                        room.players.length <
-                          2 ||
-                        !room.players.every(
-                          p => p.ready
-                        )
-                      }
+          <div className="route-options">
 
-                      onClick={
-                        () =>
-                          action('start')
-                      }
-                    >
+            {stations[
+              g.positions[
+                room.me
+              ].station!
+            ].next.map(
+              (id: string) => (
 
-                      Lancer la partie →
+                <button
+                  key={id}
 
-                    </button>
-
-                  )}
-
-                </div>
-
-              ) : (
-
-                /* ============================================
-                   PARTIE
-                   ============================================ */
-
-                <div className="metro-action">
-
-
-                  <header>
-
-                    <span>
-                      JOUR {g.round}/20
-                    </span>
-
-                    <b>
-                      AU TOUR DE{' '}
-                      {playerName(
-                        g.current
-                      ).toUpperCase()}
-                    </b>
-
-                    {g.rolled && (
-
-                      <i>
-                        DÉ : {g.rolled}
-                      </i>
-
-                    )}
-
-                  </header>
-
-
-                  <p className="city-news">
-                    {g.lastEvent}
-                  </p>
-
-
-                  {/* =========================================
-                      CHOIX DE ROUTE
-                      ========================================= */}
-
-                  {g.phase ===
-                    'route' &&
-                    myTurn && (
-
-                    <>
-
-                      <h3>
-                        Quelle direction prenez-vous ?
-                      </h3>
-
-
-                      <div className="route-options">
-
-                        {stations[
-                          g.positions[
-                            room.me
-                          ].station!
-                        ].next.map(
-                          (
-                            id: string
-                          ) => (
-
-                            <button
-
-                              key={id}
-
-                              onClick={
-                                () =>
-                                  action(
-                                    'choose-route',
-                                    {
-                                      route:
-                                        id
-                                    }
-                                  )
-                              }
-                            >
-
-                              {routes[id].name}
-
-                              <small>
-                                {
-                                  routes[id]
-                                    .nodes
-                                    .length
-                                }{' '}
-                                cases
-                              </small>
-
-                            </button>
-
-                          )
-                        )}
-
-                      </div>
-
-                    </>
-
-                  )}
-
-
-                  {/* =========================================
-                      DÉ
-                      ========================================= */}
-
-                  {g.phase ===
-                    'roll' &&
-                    myTurn && (
-
-                    <button
-
-                      className="roll-button"
-
-                      disabled={busy}
-
-                      onClick={
-                        () =>
-                          action('roll')
-                      }
-                    >
-
-                      Lancer le dé
-
-                    </button>
-
-                  )}
-
-
-                  {/* =========================================
-                      ACHAT
-                      ========================================= */}
-
-                  {g.phase ===
-                    'purchase' &&
-                    myTurn &&
-                    g.pending?.node && (
-
-                    <div className="purchase-card">
-
-
-                      <span
-                        style={{
-                          background:
-                            groupColors[
-                              nodes[
-                                g.pending
-                                  .node
-                              ].group ??
-                                ''
-                            ] ??
-                            '#42cbd1'
-                        }}
-                      />
-
-
-                      <h3>
+                  onClick={
+                    () =>
+                      action(
+                        'choose-route',
                         {
-                          nodes[
-                            g.pending.node
-                          ].name
+                          route: id
                         }
-                      </h3>
+                      )
+                  }
+                >
+
+                  {routes[id].name}
+
+                  <small>
+                    {
+                      routes[id]
+                        .nodes
+                        .length
+                    }{' '}
+                    cases
+                  </small>
+
+                </button>
+
+              )
+            )}
+
+          </div>
+
+        </>
+
+      )}
 
 
-                      <p>
+      {/* DÉ */}
 
-                        Prix :{' '}
+      {g.phase === 'roll' &&
+        myTurn && (
 
-                        <b>
-                          {g.pending.price} M
-                        </b>
+        <button
+          className="roll-button"
+          disabled={busy}
 
-                        {' · '}
+          onClick={
+            () =>
+              action('roll')
+          }
+        >
+          Lancer le dé
+        </button>
 
-                        Loyer :{' '}
-
-                        <b>
-                          {
-                            nodes[
-                              g.pending.node
-                            ].rent ?? 55
-                          }{' '}
-                          M
-                        </b>
-
-                      </p>
+      )}
 
 
-                      <button
+      {/* ACHAT */}
 
-                        disabled={
-                          g.money[
-                            room.me
-                          ] <
-                          g.pending
-                            .price!
-                        }
+      {g.phase === 'purchase' &&
+        myTurn &&
+        g.pending?.node && (
 
-                        onClick={
-                          () =>
-                            action('buy')
-                        }
-                      >
+        <div className="purchase-card">
 
-                        Acheter
+          <span
+            style={{
+              background:
+                groupColors[
+                  nodes[
+                    g.pending.node
+                  ].group ?? ''
+                ] ??
+                '#42cbd1'
+            }}
+          />
 
-                      </button>
+          <h3>
+            {
+              nodes[
+                g.pending.node
+              ].name
+            }
+          </h3>
 
+          <p>
+            Prix:{' '}
 
-                      <button
+            <b>
+              {g.pending.price} M
+            </b>
 
-                        className="metro-light"
+            {' · '}
 
-                        onClick={
-                          () =>
-                            action('skip')
-                        }
-                      >
+            Loyer:{' '}
 
-                        Passer
+            <b>
+              {
+                nodes[
+                  g.pending.node
+                ].rent ?? 55
+              }{' '}
+              M
+            </b>
+          </p>
 
-                      </button>
+          <button
+            disabled={
+              g.money[room.me] <
+              g.pending.price!
+            }
 
-                    </div>
+            onClick={
+              () =>
+                action('buy')
+            }
+          >
+            Acheter
+          </button>
 
-                  )}
+          <button
+            className="metro-light"
 
+            onClick={
+              () =>
+                action('skip')
+            }
+          >
+            Passer
+          </button>
 
-                  {/* =========================================
-                      DETTE
-                      ========================================= */}
+        </div>
 
-                  {g.phase ===
-                    'debt' &&
-                    myTurn && (
-
-                    <div className="debt-card">
-
-                      <h3>
-                        Trésorerie négative
-                      </h3>
-
-                      <p>
-                        Vendez un bien depuis votre patrimoine ou déclarez la faillite.
-                      </p>
-
-                      <button
-                        onClick={
-                          () =>
-                            action(
-                              'bankrupt'
-                            )
-                        }
-                      >
-                        Déclarer la faillite
-                      </button>
-
-                    </div>
-
-                  )}
-
-
-                  {/* =========================================
-                      FIN
-                      ========================================= */}
-
-                  {g.phase ===
-                    'finished' && (
-
-                    <div className="metro-victory">
-
-                      <p>
-                        LA VILLE A CHOISI
-                      </p>
-
-                      <h2>
-                        {playerName(
-                          g.winner
-                        )}{' '}
-                        remporte Métropole !
-                      </h2>
-
-                      <p>
-                        {g.reason}
-                      </p>
+      )}
 
 
-                      {room.host ===
-                        room.me && (
+      {/* DETTE */}
 
-                        <button
-                          onClick={
-                            () =>
-                              action(
-                                'reset'
-                              )
-                          }
-                        >
-                          Nouvelle ville
-                        </button>
+      {g.phase === 'debt' &&
+        myTurn && (
 
-                      )}
+        <div className="debt-card">
 
-                    </div>
+          <h3>
+            Trésorerie négative
+          </h3>
 
-                  )}
+          <p>
+            Vendez un bien depuis votre patrimoine ou déclarez la faillite.
+          </p>
+
+          <button
+            onClick={
+              () =>
+                action('bankrupt')
+            }
+          >
+            Déclarer la faillite
+          </button>
+
+        </div>
+
+      )}
 
 
-                  {!myTurn &&
-                    g.phase !==
-                      'finished' && (
+      {/* FIN */}
 
-                    <p className="waiting-turn">
+      {g.phase === 'finished' && (
 
-                      Observez le marché pendant que{' '}
+        <div className="metro-victory">
 
-                      {playerName(
-                        g.current
-                      )}{' '}
+          <p>
+            LA VILLE A CHOISI
+          </p>
 
-                      joue…
+          <h2>
+            {playerName(
+              g.winner
+            )}{' '}
+            remporte Métropole !
+          </h2>
 
-                    </p>
+          <p>
+            {g.reason}
+          </p>
 
-                  )}
+          {room.host === room.me && (
 
-                </div>
+            <button
+              onClick={
+                () =>
+                  action('reset')
+              }
+            >
+              Nouvelle ville
+            </button>
 
-              )}
+          )}
 
-            </section>
+        </div>
+
+      )}
+
+
+      {!myTurn &&
+        g.phase !== 'finished' && (
+
+        <p className="waiting-turn">
+
+          Observez le marché pendant que{' '}
+
+          {playerName(
+            g.current
+          )}{' '}
+
+          joue…
+
+        </p>
+
+      )}
+
+    </div>
+
+  )}
+
+</section>
+
 
 
             {/* ===============================================
