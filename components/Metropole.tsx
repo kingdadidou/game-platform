@@ -943,92 +943,28 @@ export default function Metropole() {
                     =========================================== */}
 
                 <svg
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                    >
+                    {Object.entries(routes).map(([id, route]) => {
 
-                  {Object.entries(routes)
-                    .flatMap(
-                      ([routeId, route]) => {
+                        const points = [
+                        stations[route.from],
+                        ...route.nodes,
+                        stations[route.to]
+                        ]
+                        .map(node => `${node.x},${node.y}`)
+                        .join(' ');
 
-                        const routePoints = [
+                        return (
+                        <polyline
+                            key={id}
+                            points={points}
+                        />
+                        );
 
-                          stations[
-                            route.from
-                          ],
-
-                          ...route.nodes,
-
-                          stations[
-                            route.to
-                          ]
-
-                        ];
-
-
-                        return routePoints
-                          .slice(0, -1)
-                          .map(
-                            (
-                              point,
-                              index
-                            ) => {
-
-                              const next =
-                                routePoints[
-                                  index + 1
-                                ];
-
-
-                              /*
-                               * Liaison :
-                               *
-                               * A ─────┐
-                               *        │
-                               *        B
-                               *
-                               * Au lieu de :
-                               *
-                               * A
-                               *   \
-                               *     B
-                               */
-
-                              const points = [
-
-                                `${point.x},${point.y}`,
-
-                                `${next.x},${point.y}`,
-
-                                `${next.x},${next.y}`
-
-                              ].join(' ');
-
-
-                              return (
-
-                                <polyline
-
-                                  key={
-                                    `${routeId}-${index}`
-                                  }
-
-                                  points={
-                                    points
-                                  }
-
-                                />
-
-                              );
-
-                            }
-                          );
-
-                      }
-                    )
-                  }
-
+                    })}
                 </svg>
 
 
