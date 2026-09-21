@@ -943,57 +943,273 @@ export default function Metropole() {
         =========================================== */}
 
     <svg
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      aria-hidden="true"
+  viewBox="0 0 100 100"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+>
+
+  {/* ======================================================
+      DÉFINITION DES FLÈCHES
+      ====================================================== */}
+
+  <defs>
+
+    <marker
+      id="metro-arrow"
+      markerWidth="5"
+      markerHeight="5"
+      refX="4"
+      refY="2.5"
+      orient="auto"
+      markerUnits="strokeWidth"
     >
-
-      {/* RECTANGLE PRINCIPAL */}
-      <rect
-        x="25"
-        y="25"
-        width="40"
-        height="40"
-        className="board-outline board-main"
+      <path
+        d="M0,0 L5,2.5 L0,5"
+        className="board-arrow-head"
       />
+    </marker>
 
-      {/* RECTANGLE NORD */}
-      <rect
-        x="45"
-        y="7"
-        width="20"
-        height="18"
-        className="board-outline board-north"
-      />
+  </defs>
 
-      {/* RECTANGLE OUEST */}
-      <rect
-        x="5"
-        y="25"
-        width="20"
-        height="20"
-        className="board-outline board-west"
-      />
 
-      {/* RECTANGLE EST */}
-      <rect
-        x="65"
-        y="45"
-        width="25"
-        height="20"
-        className="board-outline board-east"
-      />
+  {/* ======================================================
+      RECTANGLE PRINCIPAL
+      ====================================================== */}
 
-      {/* RECTANGLE SUD */}
-      <rect
-        x="25"
-        y="65"
-        width="20"
-        height="27"
-        className="board-outline board-south"
-      />
+  <rect
+    x="26"
+    y="35"
+    width="43"
+    height="33"
+    className="board-outline board-main"
+  />
 
-    </svg>
+
+  {/* ======================================================
+      RECTANGLE NORD
+      ====================================================== */}
+
+  <rect
+    x="49"
+    y="6"
+    width="20"
+    height="29"
+    className="board-outline board-north"
+  />
+
+
+  {/* ======================================================
+      RECTANGLE OUEST
+      ====================================================== */}
+
+  <rect
+    x="4"
+    y="32"
+    width="22"
+    height="21"
+    className="board-outline board-west"
+  />
+
+
+  {/* ======================================================
+      RECTANGLE EST
+      ====================================================== */}
+
+  <rect
+    x="69"
+    y="47"
+    width="26"
+    height="21"
+    className="board-outline board-east"
+  />
+
+
+  {/* ======================================================
+      RECTANGLE SUD
+      ====================================================== */}
+
+  <rect
+    x="26"
+    y="68"
+    width="23"
+    height="26"
+    className="board-outline board-south"
+  />
+
+
+  {/* ======================================================
+      FLÈCHES — PRINCIPAL
+      ====================================================== */}
+
+  {/* HAUT → */}
+  <line
+    x1="34"
+    y1="33"
+    x2="44"
+    y2="33"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  {/* DROITE ↓ */}
+  <line
+    x1="71"
+    y1="39"
+    x2="71"
+    y2="47"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  {/* BAS ← */}
+  <line
+    x1="61"
+    y1="70"
+    x2="53"
+    y2="70"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  {/* GAUCHE ↑ */}
+  <line
+    x1="24"
+    y1="60"
+    x2="24"
+    y2="51"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+
+  {/* ======================================================
+      FLÈCHES — NORD
+      ====================================================== */}
+
+  <line
+    x1="54"
+    y1="4"
+    x2="64"
+    y2="4"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="71"
+    y1="13"
+    x2="71"
+    y2="22"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="47"
+    y1="26"
+    x2="47"
+    y2="16"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+
+  {/* ======================================================
+      FLÈCHES — OUEST
+      ====================================================== */}
+
+  <line
+    x1="15"
+    y1="30"
+    x2="8"
+    y2="30"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="2"
+    y1="48"
+    x2="2"
+    y2="38"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="17"
+    y1="55"
+    x2="8"
+    y2="55"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+
+  {/* ======================================================
+      FLÈCHES — EST
+      ====================================================== */}
+
+  <line
+    x1="75"
+    y1="45"
+    x2="87"
+    y2="45"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="97"
+    y1="52"
+    x2="97"
+    y2="62"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="88"
+    y1="70"
+    x2="78"
+    y2="70"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+
+  {/* ======================================================
+      FLÈCHES — SUD
+      ====================================================== */}
+
+  <line
+    x1="51"
+    y1="74"
+    x2="51"
+    y2="84"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="43"
+    y1="96"
+    x2="31"
+    y2="96"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+  <line
+    x1="24"
+    y1="88"
+    x2="24"
+    y2="77"
+    className="board-direction"
+    markerEnd="url(#metro-arrow)"
+  />
+
+</svg>
 
 
     {/* ===========================================
