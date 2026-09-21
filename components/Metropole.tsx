@@ -6,7 +6,8 @@ import {
   GROUP_COLORS,
   NODE_BY_ID,
   ROUTES,
-  STATIONS
+  STATIONS,
+  UNIQUE_NODES
 } from '@/lib/metro-board.mjs';
 
 
@@ -106,6 +107,8 @@ const routes = ROUTES as Record<
 const nodes = NODE_BY_ID as Record<string, BoardNode>;
 
 const groupColors = GROUP_COLORS as Record<string, string>;
+
+const visualNodes = UNIQUE_NODES as BoardNode[];
 
 
 export default function Metropole() {
@@ -1244,92 +1247,86 @@ export default function Metropole() {
         CASES
         =========================================== */}
 
-    {Object.values(routes)
-      .flatMap(
-        route =>
-          route.nodes
-      )
-      .map(
-        node => (
+    {visualNodes.map(
+      node => (
 
-          <div
-            key={node.id}
+        <div
+          key={node.id}
 
-            className={
-              `metro-node ${node.type}`
-            }
+          className={
+            `metro-node ${node.type}`
+          }
 
-            style={{
+          style={{
 
-              ...nodeStyle(node),
+            ...nodeStyle(node),
 
-              ...(node.group
-                ? {
-                    '--district':
-                      groupColors[
-                        node.group
-                      ]
-                  } as React.CSSProperties
-                : {})
-
-            }}
-
-            title={
-              `${node.name}${
-                node.price
-                  ? ` · ${node.price} M`
-                  : ''
-              }`
-            }
-          >
-
-            <span>
-
-              {
-                node.type === 'event'
-
-                  ? '?'
-
-                  : node.type === 'salary'
-
-                    ? '+'
-
-                    : node.type === 'bank'
-
-                      ? 'B'
-
-                      : node.type === 'company'
-
-                        ? 'C'
-
-                        : ''
-              }
-
-            </span>
-
-
-            {g?.owners[node.id] && (
-
-              <i
-                style={{
-                  background:
-                    TOKEN_COLORS[
-                      room.players.findIndex(
-                        p =>
-                          p.id ===
-                          g.owners[node.id]
-                      )
+            ...(node.group
+              ? {
+                  '--district':
+                    groupColors[
+                      node.group
                     ]
-                }}
-              />
+                } as React.CSSProperties
+              : {})
 
-            )}
+          }}
 
-          </div>
+          title={
+            `${node.name}${
+              node.price
+                ? ` · ${node.price} M`
+                : ''
+            }`
+          }
+        >
 
-        )
+          <span>
+
+            {
+              node.type === 'event'
+
+                ? '?'
+
+                : node.type === 'salary'
+
+                  ? '+'
+
+                  : node.type === 'bank'
+
+                    ? 'B'
+
+                    : node.type === 'company'
+
+                      ? 'C'
+
+                      : ''
+            }
+
+          </span>
+
+
+          {g?.owners[node.id] && (
+
+            <i
+              style={{
+                background:
+                  TOKEN_COLORS[
+                    room.players.findIndex(
+                      p =>
+                        p.id ===
+                        g.owners[node.id]
+                    )
+                  ]
+              }}
+            />
+
+          )}
+
+        </div>
+
       )
-    }
+    )}
 
 
     {/* ===========================================
