@@ -1,23 +1,34 @@
-import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
-import path from 'node:path';
+import { Redis } from "@upstash/redis";
 
-// One Node process only. The shared queue also survives development hot reloads.
-const key = Symbol.for('entre-nous.store');
-const state = globalThis[key] ??= { queue: Promise.resolve() };
-const folder = path.join(process.cwd(), '.data');
-const file = path.join(folder, 'rooms.json');
-export function transaction(fn) {
-  const task = state.queue.then(async () => {
-    await mkdir(folder, { recursive: true });
-    let rooms;
-    try { rooms = JSON.parse(await readFile(file, 'utf8')); }
-    catch (error) { if (error.code !== 'ENOENT') throw error; rooms = {}; }
-    for (const [code, room] of Object.entries(rooms)) if (Date.now() - room.updatedAt > 86400000) delete rooms[code];
-    const result = fn(rooms);
-    await writeFile(file + '.tmp', JSON.stringify(rooms), { mode: 0o600 });
-    await rename(file + '.tmp', file);
-    return result;
-  });
-  state.queue = task.catch(() => {});
-  return task;
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
+
+const ROOMS_KEY = "entre-nous:rooms";
+
+export async function transaction(fn) {
+  // Récupère les salons depuis Redis
+  let rooms = await redis.get(ROOMS_KEY);
+
+  if (!rooms || typeof rooms !== "object") {
+    rooms = {};
+  }
+
+  // Supprime les salons inactifs depuis plus de 24 heures
+  const now = Date.now();
+
+  for (const [code, room] of Object.entries(rooms)) {
+    if (now - room.updatedAt > 86400000) {
+      delete rooms[code];
+    }
+  }
+
+  // Exécute exactement la même logique qu'avant
+  const result = await fn(rooms);
+
+  // Sauvegarde le nouvel état dans Redis
+  await redis.set(ROOMS_KEY, rooms);
+
+  return result;
 }
