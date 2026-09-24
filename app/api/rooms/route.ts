@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       if (data.action !== 'state') act(room, p, data.action, data);
       if (data.action === 'leave') { if (!room.players.length) delete rooms[code]; return { room: null }; }
       return { room: view(room, p) };
-    });
+    }, { readOnly: data.action === 'state' });
     return Response.json(result, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     if (error instanceof SyntaxError) return Response.json({ error: 'Requête invalide.' }, { status: 400 });

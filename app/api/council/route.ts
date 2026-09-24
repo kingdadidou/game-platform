@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       if (data.action !== 'state') councilAct(room,p,data.action,data);
       if (data.action === 'leave') { if (!room.players.length) delete rooms[code]; return { room: null }; }
       return { room: councilView(room,p) };
-    });
+    }, { readOnly: data.action === 'state' });
     return Response.json(result, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     if (error instanceof SyntaxError) return Response.json({ error: 'Requête invalide.' }, { status: 400 });

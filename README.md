@@ -6,6 +6,7 @@ Plateforme jouable de jeux entre amis, en français, construite avec Next.js 16 
 
 ```sh
 npm install
+copy .env.example .env.local
 npm run dev
 ```
 
@@ -40,13 +41,13 @@ npm run lint
 npm run build
 ```
 
-## Stockage et limites de cette version
+## Stockage et déploiement
 
-Le serveur conserve les salons dans `.data/rooms.json`, avec une file d’écriture et remplacement atomique du fichier. Les salons expirent 24 heures après leur dernière action. `.data` contient des jetons privés : ne pas publier ni versionner ce dossier.
+Les salons sont conservés dans **Upstash Redis** et expirent après 24 heures d’inactivité. Configurez `KV_REST_API_URL` et `KV_REST_API_TOKEN` à partir de `.env.example`. Les actions qui modifient une partie utilisent un verrou Redis court afin que deux requêtes simultanées ne puissent pas écraser leurs changements. Les simples lectures de synchronisation ne réécrivent plus le stockage.
 
-Exécuter **un seul processus Node** sur un disque persistant. Ce stockage ne convient pas à un déploiement serverless, à plusieurs instances ou à plusieurs processus simultanés. La synchronisation utilise HTTP, pas encore WebSocket. Une lecture réécrit actuellement le fichier : cette version vise les petits tests entre amis.
+La production est déployée sur Vercel à l’adresse [game-platform-rosy.vercel.app](https://game-platform-rosy.vercel.app) et suit la branche `main` du dépôt GitHub. Pour un autre projet Vercel, ajoutez les deux variables Redis dans **Settings → Environment Variables** avant le déploiement.
 
-Tous les joueurs doivent rester disponibles pendant une partie. Il n’y a pas encore de remplacement d’un joueur déconnecté, de chronomètre ni d’expulsion en cours de partie. Les noms sont des pseudonymes de session, sans comptes persistants. Avant ouverture publique : PostgreSQL, sessions durables, limitation de débit, gestion des déconnexions, modération et transport temps réel. Aucun déploiement public n’est inclus.
+La synchronisation utilise actuellement HTTP toutes les 1,4 à 1,5 seconde. Tous les joueurs doivent rester disponibles pendant une partie : il n’y a pas encore de remplacement d’un joueur déconnecté, de chronomètre ni d’expulsion en cours de partie. Les noms sont des pseudonymes de session, sans comptes persistants. Avant une ouverture à grande échelle, prévoir une limitation de débit, des sessions durables, de la modération et un transport temps réel.
 
 ## Organisation
 
@@ -56,5 +57,5 @@ Tous les joueurs doivent rester disponibles pendant une partie. Il n’y a pas e
 - `server/council-engine.mjs` : élections, décrets, rôles et pouvoirs du Dernier Conseil.
 - `server/metro-engine.mjs` : déplacements, achats, loyers, dette et victoire de Métropole.
 - `lib/metro-board.mjs` : géométrie, quartiers et cases du plateau.
-- `server/store.mjs` : transactions du stockage local.
+- `server/store.mjs` : lecture et transactions verrouillées dans Redis.
 - `tests/engine.test.mjs` : règles, autorisations et confidentialité.
