@@ -438,8 +438,18 @@ export default function Metropole() {
       pos.route &&
       typeof pos.index === 'number'
     ) {
-      return routes[pos.route]
-        .nodes[pos.index];
+      const route = routes[pos.route];
+
+      if (!route) {
+        return stations.central;
+      }
+
+      if (pos.index < 0) {
+        return stations[route.from];
+      }
+
+      return route.nodes[pos.index] ??
+        stations[route.to];
     }
 
     return stations.central;

@@ -50,9 +50,48 @@
 }
 
 .metro-board .board-legend {
-  left: 47%;
-  top: 52%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
+  left: auto;
+  right: 2.5%;
+  top: 2.5%;
+  transform: none;
+  z-index: 10;
   max-width: 230px;
+}
+
+.metro-board .metro-node {
+  width: 31px;
+  height: 31px;
+  font-size: 12px;
+}
+
+.metro-board .metro-node.station {
+  width: 43px;
+  height: 43px;
+}
+
+.metro-board .metro-node.station small {
+  top: 48px;
+}
+
+.metro-board .metro-token {
+  width: 20px;
+  height: 20px;
+}
+
+@media(max-width:720px) {
+  .metro-board .metro-node {
+    width: 21px;
+    height: 21px;
+    font-size: 8px;
+  }
+
+  .metro-board .metro-node.station {
+    width: 31px;
+    height: 31px;
+  }
+
+  .metro-board .board-legend {
+    right: 1.5%;
+    top: 1.5%;
+  }
 }
