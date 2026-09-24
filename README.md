@@ -27,7 +27,7 @@ Sur un réseau local, les amis utilisent l’adresse IP du serveur et son port, 
 - Équipes, votes à majorité stricte, décisions secrètes, missions, historique des votes, victoire et revanche.
 - Jeu original : 3 missions réussies pour les Agents ; 3 missions sabotées ou 5 équipes refusées consécutivement pour les Ombres. Une mission échoue au premier sabotage, quel que soit le nombre de joueurs.
 - Le Dernier Conseil : Gardiens, Conspirateurs et Prétendant, gouvernements élus, choix secrets de décrets, chaos électoral, veto et pouvoirs d’inspection, d’élection spéciale et de bannissement.
-- Métropole : 2 à 6 investisseurs, choix de routes, huit quartiers, propriétés et entreprises, loyers, événements, primes, ventes, faillites et victoire au patrimoine après vingt journées.
+- Métropole : 2 à 6 investisseurs, deux dés et doubles, déplacements continus aux gares, gares achetables, quartiers, maisons, loyers, événements, échanges au Café des affaires, faillites et victoire au patrimoine après vingt journées.
 
 ## Vérification
 

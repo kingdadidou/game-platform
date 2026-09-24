@@ -78,6 +78,55 @@
   height: 20px;
 }
 
+.metro-node.owned {
+  box-shadow: 0 0 0 4px var(--owner-color), 3px 3px 0 #172b3566;
+}
+
+.metro-node.station.owned {
+  box-shadow: 0 0 0 5px #fff, 0 0 0 9px var(--owner-color);
+}
+
+.metro-node .owner-mark {
+  right: -7px;
+  top: -7px;
+  width: 13px;
+  height: 13px;
+  background: var(--owner-color) !important;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.house-stack {
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  transform: translateX(-50%);
+  color: #173d2d;
+  background: #fff7df;
+  border: 1px solid var(--ink);
+  padding: 1px 3px;
+  font-size: 9px;
+  white-space: nowrap;
+  z-index: 12;
+}
+
+.player-assets {display:flex!important;gap:3px;flex-wrap:wrap;margin-top:4px}
+.player-assets em{font-style:normal;color:var(--blue);background:#fff;border:1px solid var(--ink);padding:1px 3px;border-radius:3px}
+.dice-result{display:flex;align-items:center;gap:10px;background:#d9edf2;border:3px solid var(--ink);padding:10px;margin:12px 0;font:900 10px "Courier New",monospace}
+.dice-result.is-double{background:#ffe17a;animation:metro-pulse .7s ease-in-out 2}
+.die{display:grid;place-items:center;width:42px;height:42px;background:#fff;border:3px solid var(--ink);border-radius:8px;box-shadow:3px 3px 0 var(--ink);font:900 22px Arial}
+@keyframes metro-pulse{50%{transform:scale(1.02)}}
+.purchase-card .buy-button{min-width:150px;min-height:58px;font-size:15px!important;padding:16px 24px!important;background:var(--green)!important}
+.trade-desk{height:auto!important;overflow:visible!important;border:2px solid var(--ink);background:#fff4c9;padding:10px;margin-bottom:12px}
+.trade-desk h3{font:900 9px "Courier New",monospace;margin:0 0 8px}
+.trade-desk select{width:100%;margin:4px 0;padding:7px;border:2px solid var(--ink);background:#fff;font:700 9px "Courier New",monospace}
+.trade-desk>button{width:100%;margin-top:5px;padding:8px;font-size:8px}
+.trade-offer{border-top:2px dashed var(--ink);margin-top:9px;padding-top:8px;font:700 8px/1.4 "Courier New",monospace}
+.trade-offer b,.trade-offer span{display:block}.trade-offer div{display:flex;gap:5px;margin-top:5px}.trade-offer button{padding:6px;font-size:7px;box-shadow:2px 2px 0 var(--ink)}
+.metro-chat>.chat-messages{height:250px;overflow:auto}
+.metro-chat>.chat-messages p{font:700 10px/1.45 "Courier New",monospace;border-left:4px solid var(--blue);padding-left:7px}
+.metro-chat>.chat-messages b{display:block;color:var(--coral);text-transform:uppercase}
+
 @media(max-width:720px) {
   .metro-board .metro-node {
     width: 21px;

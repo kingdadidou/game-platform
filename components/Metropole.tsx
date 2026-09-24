@@ -31,8 +31,23 @@ type MetroGame = {
   money: Record<string, number>;
   positions: Record<string, Position>;
   owners: Record<string, string>;
+  houses: Record<string, number>;
+  tradeOffers: {
+    id: string;
+    from: string;
+    to: string;
+    offerNode: string;
+    wantNode: string;
+  }[];
   bankrupt: string[];
   rolled: number | null;
+  lastRoll: {
+    player: string;
+    dice: [number, number];
+    total: number;
+    isDouble: boolean;
+  } | null;
+  remainingMoves: number;
   pending: {
     node?: string;
     price?: number;
@@ -91,6 +106,9 @@ const stations = STATIONS as Record<
     x: number;
     y: number;
     next: string[];
+    type: string;
+    price: number;
+    rent: number;
   }
 >;
 
@@ -105,6 +123,7 @@ const routes = ROUTES as Record<
 >;
 
 const nodes = NODE_BY_ID as Record<string, BoardNode>;
+const assets = { ...nodes, ...stations } as Record<string, BoardNode>;
 
 const groupColors = GROUP_COLORS as Record<string, string>;
 
@@ -124,6 +143,8 @@ export default function Metropole() {
   const [busy, setBusy] = useState(false);
 
   const [message, setMessage] = useState('');
+  const [tradeOffer, setTradeOffer] = useState('');
+  const [tradeWant, setTradeWant] = useState('');
 
   const lock = useRef(false);
   const revision = useRef(0);
@@ -401,10 +422,28 @@ export default function Metropole() {
           )
 
           .map(
-            ([id]) => nodes[id]
+            ([id]) => assets[id]
           )
 
       : [];
+
+  const myTradeAssets = myProperties.filter(Boolean);
+  const otherTradeAssets = g
+    ? Object.entries(g.owners)
+        .filter(([, owner]) => owner !== room?.me)
+        .map(([id, owner]) => ({ ...assets[id], owner }))
+        .filter(item => item.id)
+    : [];
+
+  const ownsGroup = (node: BoardNode) => {
+    if (!g || !node.group) return false;
+    const group = Object.values(nodes).filter(
+      candidate => candidate.group === node.group
+    );
+    return group.length > 0 && group.every(
+      candidate => g.owners[candidate.id] === room?.me
+    );
+  };
 
 
   /* =========================================================
@@ -514,6 +553,12 @@ export default function Metropole() {
           }
         );
 
+      };
+
+  const buildProperty =
+    (nodeId: string) =>
+      () => {
+        void action('build', { node: nodeId });
       };
 
 
@@ -817,6 +862,19 @@ export default function Metropole() {
 
                       </small>
 
+                      {g && (
+                        <span className="player-assets">
+                          {Object.entries(g.owners)
+                            .filter(([, owner]) => owner === p.id)
+                            .map(([id]) => (
+                              <em key={id} title={assets[id]?.name}>
+                                {assets[id]?.type === 'station' ? '◆' : '■'}
+                                {(g.houses[id] ?? 0) > 0 ? `⌂${g.houses[id]}` : ''}
+                              </em>
+                            ))}
+                        </span>
+                      )}
+
                     </div>
 
 
@@ -884,6 +942,20 @@ export default function Metropole() {
                             <b>
                               {n.name}
                             </b>
+
+                            {(g.houses[n.id] ?? 0) > 0 && (
+                              <small>{'🏠'.repeat(g.houses[n.id])}</small>
+                            )}
+
+                            {myTurn &&
+                              ['roll', 'route'].includes(g.phase) &&
+                              n.type === 'property' &&
+                              ownsGroup(n) &&
+                              (g.houses[n.id] ?? 0) < 4 && (
+                                <button onClick={buildProperty(n.id)}>
+                                  Construire {Math.floor((n.price ?? 200) / 2)} M
+                                </button>
+                              )}
 
 
                             {g.phase ===
@@ -965,9 +1037,14 @@ export default function Metropole() {
 
         <div
           key={s.id}
-          className={`metro-node station station-${s.id}`}
-          style={nodeStyle(s)}
-          title={s.name}
+          className={`metro-node station station-${s.id} ${g?.owners[s.id] ? 'owned' : ''}`}
+          style={{
+            ...nodeStyle(s),
+            '--owner-color': g?.owners[s.id]
+              ? TOKEN_COLORS[room.players.findIndex(p => p.id === g.owners[s.id])]
+              : undefined
+          } as React.CSSProperties}
+          title={`${s.name} · ${s.price} M · loyer ${s.rent} M`}
         >
 
           <span>
@@ -977,6 +1054,8 @@ export default function Metropole() {
           <small>
             {s.name}
           </small>
+
+          {g?.owners[s.id] && <i className="owner-mark" />}
 
         </div>
 
@@ -995,7 +1074,7 @@ export default function Metropole() {
           key={node.id}
 
           className={
-            `metro-node ${node.type}`
+            `metro-node ${node.type} ${g?.owners[node.id] ? 'owned' : ''}`
           }
 
           style={{
@@ -1008,6 +1087,14 @@ export default function Metropole() {
                     groupColors[
                       node.group
                     ]
+                } as React.CSSProperties
+              : {})
+
+            ,...(g?.owners[node.id]
+              ? {
+                  '--owner-color': TOKEN_COLORS[
+                    room.players.findIndex(p => p.id === g.owners[node.id])
+                  ]
                 } as React.CSSProperties
               : {})
 
@@ -1049,7 +1136,7 @@ export default function Metropole() {
 
           {g?.owners[node.id] && (
 
-            <i
+            <i className="owner-mark"
               style={{
                 background:
                   TOKEN_COLORS[
@@ -1062,6 +1149,10 @@ export default function Metropole() {
               }}
             />
 
+          )}
+
+          {(g?.houses[node.id] ?? 0) > 0 && (
+            <b className="house-stack">{'⌂'.repeat(g!.houses[node.id])}</b>
           )}
 
         </div>
@@ -1224,13 +1315,22 @@ export default function Metropole() {
           ).toUpperCase()}
         </b>
 
-        {g.rolled && (
-          <i>
-            DÉ : {g.rolled}
-          </i>
+        {g.lastRoll && (
+          <i>TOTAL : {g.lastRoll.total}</i>
         )}
 
       </header>
+
+      {g.lastRoll && (
+        <div className={`dice-result ${g.lastRoll.isDouble ? 'is-double' : ''}`}>
+          <span className="die">{g.lastRoll.dice[0]}</span>
+          <span className="die">{g.lastRoll.dice[1]}</span>
+          <b>
+            {playerName(g.lastRoll.player)} a obtenu {g.lastRoll.total}
+            {g.lastRoll.isDouble ? ' · DOUBLE, il rejoue !' : ''}
+          </b>
+        </div>
+      )}
 
 
       <p className="city-news">
@@ -1247,6 +1347,7 @@ export default function Metropole() {
 
           <h3>
             Quelle direction prenez-vous ?
+            {g.remainingMoves > 0 && ` · ${g.remainingMoves} cases restantes`}
           </h3>
 
           <div className="route-options">
@@ -1327,7 +1428,7 @@ export default function Metropole() {
             style={{
               background:
                 groupColors[
-                  nodes[
+                  assets[
                     g.pending.node
                   ].group ?? ''
                 ] ??
@@ -1337,7 +1438,7 @@ export default function Metropole() {
 
           <h3>
             {
-              nodes[
+              assets[
                 g.pending.node
               ].name
             }
@@ -1356,7 +1457,7 @@ export default function Metropole() {
 
             <b>
               {
-                nodes[
+                assets[
                   g.pending.node
                 ].rent ?? 55
               }{' '}
@@ -1364,7 +1465,7 @@ export default function Metropole() {
             </b>
           </p>
 
-          <button
+          <button className="buy-button"
             disabled={
               g.money[room.me] <
               g.pending.price!
@@ -1497,8 +1598,71 @@ export default function Metropole() {
                 CAFÉ DES AFFAIRES
               </h2>
 
+              {g && g.phase !== 'finished' && (
+                <div className="trade-desk">
+                  <h3>ÉCHANGER DES PROPRIÉTÉS</h3>
 
-              <div>
+                  <select
+                    aria-label="Votre propriété proposée"
+                    value={tradeOffer}
+                    onChange={e => setTradeOffer(e.target.value)}
+                  >
+                    <option value="">Votre bien…</option>
+                    {myTradeAssets.map(item => (
+                      <option key={item.id} value={item.id}>{item.name}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    aria-label="Propriété demandée"
+                    value={tradeWant}
+                    onChange={e => setTradeWant(e.target.value)}
+                  >
+                    <option value="">Bien demandé…</option>
+                    {otherTradeAssets.map(item => (
+                      <option key={item.id} value={item.id}>
+                        {item.name} · {playerName(item.owner)}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    disabled={!tradeOffer || !tradeWant || busy}
+                    onClick={() => {
+                      const wanted = otherTradeAssets.find(item => item.id === tradeWant);
+                      if (!wanted) return;
+                      void action('propose-trade', {
+                        offerNode: tradeOffer,
+                        wantNode: tradeWant,
+                        to: wanted.owner
+                      });
+                      setTradeOffer('');
+                      setTradeWant('');
+                    }}
+                  >
+                    Proposer l’échange
+                  </button>
+
+                  {g.tradeOffers.map(offer => (
+                    <div className="trade-offer" key={offer.id}>
+                      <b>{playerName(offer.from)} propose</b>
+                      <span>{assets[offer.offerNode]?.name} ⇄ {assets[offer.wantNode]?.name}</span>
+                      {offer.to === room.me && (
+                        <div>
+                          <button onClick={() => action('accept-trade', { offerId: offer.id })}>Accepter</button>
+                          <button className="metro-light" onClick={() => action('reject-trade', { offerId: offer.id })}>Refuser</button>
+                        </div>
+                      )}
+                      {offer.from === room.me && (
+                        <button className="metro-light" onClick={() => action('reject-trade', { offerId: offer.id })}>Annuler</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+
+              <div className="chat-messages">
 
                 {room.messages.length ===
                   0 && (
