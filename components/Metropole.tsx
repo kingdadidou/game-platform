@@ -32,6 +32,7 @@ type MetroGame = {
   positions: Record<string, Position>;
   owners: Record<string, string>;
   houses: Record<string, number>;
+  mortgages: Record<string, boolean>;
   tradeOffers: {
     id: string;
     from: string;
@@ -39,6 +40,12 @@ type MetroGame = {
     offerNode: string;
     wantNode: string;
   }[];
+  auction: {
+    node: string;
+    highestBid: number;
+    highestBidder: string | null;
+    passed: string[];
+  } | null;
   bankrupt: string[];
   rolled: number | null;
   lastRoll: {
@@ -70,6 +77,12 @@ type Room = {
     name: string;
     text: string;
   }[];
+  settings: {
+    startingCash: number;
+    auction: boolean;
+    doubleRent: boolean;
+    evenBuild: boolean;
+  };
   game: MetroGame | null;
 };
 
@@ -145,6 +158,7 @@ export default function Metropole() {
   const [message, setMessage] = useState('');
   const [tradeOffer, setTradeOffer] = useState('');
   const [tradeWant, setTradeWant] = useState('');
+  const [bidAmount, setBidAmount] = useState('');
 
   const lock = useRef(false);
   const revision = useRef(0);
@@ -561,6 +575,26 @@ export default function Metropole() {
         void action('build', { node: nodeId });
       };
 
+  const toggleMortgage =
+    (nodeId: string, mortgaged: boolean) =>
+      () => {
+        void action(mortgaged ? 'unmortgage' : 'mortgage', { node: nodeId });
+      };
+
+  function updateSettings(changes: Partial<Room['settings']>) {
+    if (!room) return;
+    void action('configure', { ...room.settings, ...changes });
+  }
+
+  function submitBid() {
+    void action('bid', { amount: Number(bidAmount) });
+    setBidAmount('');
+  }
+
+  function passAuction() {
+    void action('pass-auction');
+  }
+
 
   /* =========================================================
      AFFICHAGE
@@ -947,6 +981,8 @@ export default function Metropole() {
                               <small>{'🏠'.repeat(g.houses[n.id])}</small>
                             )}
 
+                            {g.mortgages[n.id] && <small>HYPOTHÉQUÉ</small>}
+
                             {myTurn &&
                               ['roll', 'route'].includes(g.phase) &&
                               n.type === 'property' &&
@@ -954,6 +990,19 @@ export default function Metropole() {
                               (g.houses[n.id] ?? 0) < 4 && (
                                 <button onClick={buildProperty(n.id)}>
                                   Construire {Math.floor((n.price ?? 200) / 2)} M
+                                </button>
+                              )}
+
+                            {myTurn &&
+                              ['roll', 'route'].includes(g.phase) &&
+                              (g.houses[n.id] ?? 0) === 0 && (
+                                <button
+                                  className="mortgage-button"
+                                  onClick={toggleMortgage(n.id, Boolean(g.mortgages[n.id]))}
+                                >
+                                  {g.mortgages[n.id]
+                                    ? `Lever ${Math.ceil((n.price ?? 200) * .55)} M`
+                                    : `Hypothéquer ${Math.floor((n.price ?? 200) / 2)} M`}
                                 </button>
                               )}
 
@@ -1037,7 +1086,7 @@ export default function Metropole() {
 
         <div
           key={s.id}
-          className={`metro-node station station-${s.id} ${g?.owners[s.id] ? 'owned' : ''}`}
+          className={`metro-node station station-${s.id} ${g?.owners[s.id] ? 'owned' : ''} ${g?.mortgages[s.id] ? 'mortgaged' : ''}`}
           style={{
             ...nodeStyle(s),
             '--owner-color': g?.owners[s.id]
@@ -1074,7 +1123,7 @@ export default function Metropole() {
           key={node.id}
 
           className={
-            `metro-node ${node.type} ${g?.owners[node.id] ? 'owned' : ''}`
+            `metro-node ${node.type} ${g?.owners[node.id] ? 'owned' : ''} ${g?.mortgages[node.id] ? 'mortgaged' : ''}`
           }
 
           style={{
@@ -1257,6 +1306,37 @@ export default function Metropole() {
   {!g ? (
 
     <div className="metro-action">
+
+      <div className="game-settings">
+        <h3>RÉGLAGES DE LA PARTIE</h3>
+        <label>
+          Capital de départ
+          <select
+            value={room.settings.startingCash}
+            disabled={room.host !== room.me || busy}
+            onChange={e => updateSettings({ startingCash: Number(e.target.value) })}
+          >
+            {[1000, 1500, 2000, 2500, 3000].map(value => (
+              <option value={value} key={value}>{value} M</option>
+            ))}
+          </select>
+        </label>
+        {([
+          ['auction', 'Enchères après un refus'],
+          ['doubleRent', 'Loyer doublé pour un quartier complet'],
+          ['evenBuild', 'Construction équilibrée dans le quartier']
+        ] as const).map(([key, label]) => (
+          <label className="setting-toggle" key={key}>
+            <input
+              type="checkbox"
+              checked={room.settings[key]}
+              disabled={room.host !== room.me || busy}
+              onChange={e => updateSettings({ [key]: e.target.checked })}
+            />
+            {label}
+          </label>
+        ))}
+      </div>
 
       <p>
         Réunissez 2 à 6 investisseurs.
@@ -1495,6 +1575,43 @@ export default function Metropole() {
       )}
 
 
+      {/* ENCHÈRES */}
+
+      {g.phase === 'auction' && g.auction && (
+        <div className="auction-card">
+          <span>VENTE PUBLIQUE</span>
+          <h3>{assets[g.auction.node]?.name}</h3>
+          <p>
+            Meilleure offre : <b>{g.auction.highestBid} M</b>
+            {g.auction.highestBidder && ` · ${playerName(g.auction.highestBidder)}`}
+          </p>
+          {!g.auction.passed.includes(room.me) ? (
+            <div>
+              <input
+                type="number"
+                min={g.auction.highestBid + 10}
+                max={g.money[room.me]}
+                value={bidAmount}
+                onChange={e => setBidAmount(e.target.value)}
+                placeholder={`${g.auction.highestBid + 10} M minimum`}
+              />
+              <button
+                disabled={!bidAmount || Number(bidAmount) > g.money[room.me]}
+                onClick={submitBid}
+              >
+                Enchérir
+              </button>
+              {g.auction.highestBidder !== room.me && (
+                <button className="metro-light" onClick={passAuction}>Passer</button>
+              )}
+            </div>
+          ) : (
+            <p>Vous avez quitté cette enchère.</p>
+          )}
+        </div>
+      )}
+
+
       {/* DETTE */}
 
       {g.phase === 'debt' &&
@@ -1564,6 +1681,7 @@ export default function Metropole() {
 
 
       {!myTurn &&
+        g.phase !== 'auction' &&
         g.phase !== 'finished' && (
 
         <p className="waiting-turn">

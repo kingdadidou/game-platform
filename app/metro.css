@@ -126,6 +126,12 @@
 .metro-chat>.chat-messages{height:250px;overflow:auto}
 .metro-chat>.chat-messages p{font:700 10px/1.45 "Courier New",monospace;border-left:4px solid var(--blue);padding-left:7px}
 .metro-chat>.chat-messages b{display:block;color:var(--coral);text-transform:uppercase}
+.metro-node.mortgaged{filter:grayscale(.9);opacity:.68;background-image:repeating-linear-gradient(135deg,transparent 0 5px,#172b3533 5px 8px)}
+.mortgage-button{background:#65717a!important;padding:6px!important;font-size:7px!important}
+.game-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 14px;background:#fff4c9;border:2px solid var(--ink);padding:12px;margin-bottom:14px;font:700 9px/1.4 "Courier New",monospace}
+.game-settings h3{grid-column:1/-1;margin:0}.game-settings label{display:flex;align-items:center;justify-content:space-between;gap:8px}.game-settings select{border:2px solid var(--ink);padding:5px;background:#fff;font-weight:900}.game-settings .setting-toggle{justify-content:flex-start}.game-settings input{accent-color:var(--green)}
+.auction-card{background:#ffe17a;border:4px double var(--ink);padding:15px;margin:12px 0}.auction-card>span{font:900 9px "Courier New",monospace;letter-spacing:2px}.auction-card h3{margin:6px 0}.auction-card>div{display:grid;grid-template-columns:1fr auto auto;gap:8px}.auction-card input{min-width:0;border:3px solid var(--ink);padding:10px;font-weight:900}.auction-card button{padding:10px}
+@media(max-width:720px){.game-settings{grid-template-columns:1fr}.game-settings h3{grid-column:auto}.auction-card>div{grid-template-columns:1fr}.purchase-card .buy-button{min-width:0;width:100%}}
 
 @media(max-width:720px) {
   .metro-board .metro-node {
