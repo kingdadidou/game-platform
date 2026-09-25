@@ -1,6 +1,6 @@
 # Entre nous — Jeux de rôles cachés
 
-Plateforme jouable de jeux entre amis, en français, construite avec Next.js 16 et React 19. Trois jeux originaux sont disponibles : **Conseil des Ombres**, **Le Dernier Conseil** et **Métropole**.
+Plateforme jouable de jeux entre amis, en français, construite avec Next.js 16 et React 19. Quatre jeux originaux sont disponibles : **Conseil des Ombres**, **Le Dernier Conseil**, **Métropole** et **Le Traître à bord**.
 
 ## Démarrer
 
@@ -16,6 +16,8 @@ Le Dernier Conseil est accessible sur `/dernier-conseil`. Il utilise ses propres
 
 Métropole est accessible sur `/metropole`. Son plateau à quatre gares reprend la structure de la carte de référence : plusieurs boucles relient les quartiers et les joueurs choisissent leur itinéraire aux carrefours.
 
+Le Traître à bord est accessible sur `/traitre-a-bord`. L’équipage répare le vaisseau pendant qu’un ou deux traîtres sabotent la mission ; chaque rotation se termine par une réunion et un vote d’expulsion.
+
 Sur un réseau local, les amis utilisent l’adresse IP du serveur et son port, sous réserve du pare-feu. Un lien localhost fonctionne uniquement sur la machine qui héberge le serveur.
 
 ## Fonctionnalités
@@ -28,6 +30,7 @@ Sur un réseau local, les amis utilisent l’adresse IP du serveur et son port, 
 - Jeu original : 3 missions réussies pour les Agents ; 3 missions sabotées ou 5 équipes refusées consécutivement pour les Ombres. Une mission échoue au premier sabotage, quel que soit le nombre de joueurs.
 - Le Dernier Conseil : Gardiens, Conspirateurs et Prétendant, gouvernements élus, choix secrets de décrets, chaos électoral, veto et pouvoirs d’inspection, d’élection spéciale et de bannissement.
 - Métropole : 2 à 6 investisseurs, règles configurables, deux dés et doubles, déplacements continus aux gares, gares achetables, enchères, hypothèques, quartiers, maisons équilibrées, loyers, événements, échanges au Café des affaires, faillites et victoire au patrimoine après vingt journées.
+- Le Traître à bord : 4 à 10 joueurs, rôles secrets, réparations simultanées, sabotages, réunions d’urgence, votes d’expulsion et journal de mission.
 
 ## Vérification
 

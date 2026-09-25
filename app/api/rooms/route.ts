@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       }
       const code = typeof data.code === 'string' ? data.code.toUpperCase() : '';
       const room = rooms[code];
-      if (!room || room.kind === 'last-council' || room.kind === 'metropole') throw new GameError('Salon introuvable ou expiré. Vérifie le code.');
+      if (!room || room.kind === 'last-council' || room.kind === 'metropole' || room.kind === 'traitor-aboard') throw new GameError('Salon introuvable ou expiré. Vérifie le code.');
       if (data.action === 'join') {
         const p = joinRoom(room, data.name); room.updatedAt = Date.now();
         return { room: view(room, p), token: p.token };

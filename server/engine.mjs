@@ -13,7 +13,7 @@ export function createRoom(name) {
   return { kind: 'shadows', code: randomBytes(4).toString('hex').toUpperCase(), host: p.id, players: [p], messages: [], game: null, updatedAt: Date.now() };
 }
 export function joinRoom(room, name) {
-  requireThat(room.kind !== 'last-council' && room.kind !== 'metropole', 'Ce code appartient à un autre jeu.');
+  requireThat(room.kind !== 'last-council' && room.kind !== 'metropole' && room.kind !== 'traitor-aboard', 'Ce code appartient à un autre jeu.');
   requireThat(!room.game, 'La partie a déjà commencé.');
   requireThat(room.players.length < 10, 'Ce salon est complet.');
   const p = player(name);
