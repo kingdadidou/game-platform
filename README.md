@@ -31,6 +31,11 @@ Sur un réseau local, les amis utilisent l’adresse IP du serveur et son port, 
 - Le Dernier Conseil : Gardiens, Conspirateurs et Prétendant, gouvernements élus, choix secrets de décrets, chaos électoral, veto et pouvoirs d’inspection, d’élection spéciale et de bannissement.
 - Métropole : 2 à 6 investisseurs, règles configurables, deux dés et doubles, déplacements continus aux gares, gares achetables, enchères, hypothèques, quartiers, maisons équilibrées, loyers, événements, échanges au Café des affaires, faillites et victoire au patrimoine après vingt journées.
 - Traîtres à bord ! : 3 à 8 joueurs, cartes Butin secrètes, bluff sur leur valeur, cinq cartes Action, élimination avec trois Planches et quatre conditions de fin officielles.
+- Deux bandeaux publicitaires responsives sont présents sur toutes les pages. Sans configuration AdSense, ils restent sous forme d’emplacements de démonstration.
+
+## Publicités Google AdSense
+
+Créez deux blocs d’annonces responsives dans AdSense, puis ajoutez dans Vercel les variables `NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT`, `NEXT_PUBLIC_GOOGLE_ADSENSE_TOP_SLOT` et `NEXT_PUBLIC_GOOGLE_ADSENSE_BOTTOM_SLOT`. Après un nouveau déploiement, les annonces remplacent automatiquement les emplacements de démonstration.
 
 ## Vérification
 
