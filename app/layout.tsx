@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   },
   description: 'Jouez gratuitement en ligne à quatre jeux multijoueurs de bluff, stratégie, rôles cachés et déduction, sans inscription.',
   applicationName: 'Entre nous',
+  verification: {
+    google: 'd0ZcgqOonTfnrTk85b-CK815wdhHz8KkmxjKYDBXJ7M'
+  },
   robots: {
     index: true,
     follow: true,
