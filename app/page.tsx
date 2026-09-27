@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: { absolute: 'Entre nous — Jeux multijoueurs entre amis' },
+  description: 'Créez un salon privé et jouez gratuitement entre amis à Conseil des Ombres, Le Dernier Conseil, Métropole et Traîtres à bord.',
+  alternates: { canonical: '/' }
+};
 
 export default function Home() {
   return <main className="shell">

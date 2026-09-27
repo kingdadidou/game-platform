@@ -5,5 +5,34 @@ import './council.css';
 import './metro.css';
 import './traitor.css';
 import {AdBanner,AdSenseScript} from '@/components/AdSense';
-export const metadata: Metadata = { title: 'Entre nous — Jeux entre amis', description: 'Quatre jeux multijoueurs originaux de bluff, stratégie, rôles cachés et déduction à partager entre amis.' };
+const siteUrl = 'https://game-platform-rosy.vercel.app';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Entre nous — Jeux multijoueurs entre amis',
+    template: '%s | Entre nous'
+  },
+  description: 'Jouez gratuitement en ligne à quatre jeux multijoueurs de bluff, stratégie, rôles cachés et déduction, sans inscription.',
+  applicationName: 'Entre nous',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1
+    }
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    siteName: 'Entre nous',
+    url: siteUrl,
+    title: 'Entre nous — Jeux multijoueurs entre amis',
+    description: 'Quatre jeux gratuits de bluff, stratégie et rôles cachés à partager en ligne avec vos amis.'
+  }
+};
 export default function RootLayout({ children }: { children: React.ReactNode }) { const client=process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT??'';const topSlot=process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_TOP_SLOT??'';const bottomSlot=process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_BOTTOM_SLOT??'';return <html lang="fr"><body><AdSenseScript client={client}/><AdBanner client={client} slot={topSlot} placement="top"/>{children}<AdBanner client={client} slot={bottomSlot} placement="bottom"/></body></html>; }
