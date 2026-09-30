@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/lobby`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${siteUrl}/dernier-conseil`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${siteUrl}/metropole`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${siteUrl}/traitre-a-bord`, lastModified, changeFrequency: 'weekly', priority: 0.9 }
+    { url: `${siteUrl}/traitre-a-bord`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${siteUrl}/frontieres-express`, lastModified, changeFrequency: 'weekly', priority: 0.9 }
   ];
 }

@@ -4,6 +4,7 @@ import './game-theme.css';
 import './council.css';
 import './metro.css';
 import './traitor.css';
+import './frontier.css';
 import {AdBanner,AdSenseScript} from '@/components/AdSense';
 const siteUrl = 'https://game-platform-rosy.vercel.app';
 
