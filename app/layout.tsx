@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     default: 'Entre nous — Jeux multijoueurs entre amis',
     template: '%s | Entre nous'
   },
-  description: 'Jouez gratuitement en ligne à quatre jeux multijoueurs de bluff, stratégie, rôles cachés et déduction, sans inscription.',
+  description: 'Jouez gratuitement en ligne à cinq jeux multijoueurs de bluff, stratégie, conquête, rôles cachés et déduction, sans inscription.',
   applicationName: 'Entre nous',
   verification: {
     google: 'd0ZcgqOonTfnrTk85b-CK815wdhHz8KkmxjKYDBXJ7M'
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: 'Entre nous',
     url: siteUrl,
     title: 'Entre nous — Jeux multijoueurs entre amis',
-    description: 'Quatre jeux gratuits de bluff, stratégie et rôles cachés à partager en ligne avec vos amis.'
+    description: 'Cinq jeux gratuits de bluff, stratégie, conquête et rôles cachés à partager en ligne avec vos amis.'
   }
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) { const client=process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT??'';const topSlot=process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_TOP_SLOT??'';const bottomSlot=process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_BOTTOM_SLOT??'';return <html lang="fr"><body><AdSenseScript client={client}/><AdBanner client={client} slot={topSlot} placement="top"/>{children}<AdBanner client={client} slot={bottomSlot} placement="bottom"/></body></html>; }
