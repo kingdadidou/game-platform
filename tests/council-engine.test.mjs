@@ -18,3 +18,24 @@ test('banishing pretender gives republic victory',()=>{const room=setup();const 
 test('three rejected governments enact the top decree',()=>{const room=setup();const before=room.game.deck.length;for(let round=0;round<3;round++){const nominee=room.players.find(p=>p.alive&&p.id!==room.game.currentPresident&&p.id!==room.game.lastSpeaker);act(room,pres(room),'nominate',{player:nominee.id});for(const p of room.players.filter(p=>p.alive))act(room,p,'vote',{approve:false});}assert.equal(room.game.policies.republique+room.game.policies.autorite,1);assert.equal(room.game.deck.length,before-1);assert.ok(room.game.history.some(h=>h.type==='policy'&&h.chaos));});
 
 test('invalid identities, duplicate votes and cross-game rooms are rejected',()=>{const room=setup();assert.throws(()=>authenticateCouncil(room,'bad'));const nominee=room.players.find(p=>p.id!==room.game.currentPresident);act(room,pres(room),'nominate',{player:nominee.id});act(room,room.players[0],'vote',{approve:true});assert.throws(()=>act(room,room.players[0],'vote',{approve:true}));assert.throws(()=>joinCouncilRoom({...room,kind:'shadows'},'Intrus'));});
+
+test('pretender knows allies only in small assemblies and public counters preserve deck secrecy',()=>{
+  for(const count of [5,6,7,10]){
+    const room=setup(count);
+    const pretender=room.players.find(p=>p.id===room.game.pretender);
+    const view=councilView(room,pretender).game;
+    assert.equal(view.knownConspirators.length,count<=6?room.game.conspirators.length:0);
+    assert.equal(view.deckCount,17);
+    assert.equal(view.discardCount,0);
+    assert.ok(!('deck' in view));
+    assert.ok(!('discard' in view));
+    const speaker=room.players.find(p=>p.id!==room.game.currentPresident);
+    elect(room,speaker);
+    const election=councilView(room,pretender).game.history.at(-1);
+    assert.equal(Object.keys(election.votes).length,count);
+    assert.ok(Object.values(election.votes).every(v=>v===true));
+    assert.equal(councilView(room,pretender).game.deckCount,14);
+    act(room,pres(room),'discard-president',{index:0});
+    assert.equal(councilView(room,pretender).game.discardCount,1);
+  }
+});
