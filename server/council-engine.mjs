@@ -94,11 +94,11 @@ export function councilAct(room, p, action, data = {}) {
     ensure(data.revision === g.history.length, 'La séance a avancé. Actualise ton action.');
     const pres = president(room);
     if (action === 'nominate') {
-      ensure(g.phase === 'nomination' && pres.id === p.id, 'Seul le Premier Conseiller peut nommer un Orateur.');
+      ensure(g.phase === 'nomination' && pres.id === p.id, 'Seul le Premier ministre peut nommer un Sénateur.');
       const target = room.players.find(x => x.id === data.player && x.alive);
       ensure(target && target.id !== p.id, 'Choisis un autre membre vivant de l’assemblée.');
-      ensure(target.id !== g.lastSpeaker, 'L’Orateur précédent ne peut pas être renommé immédiatement.');
-      if (alive(room).length > 5) ensure(target.id !== g.lastPresident, 'Le Premier Conseiller précédent est inéligible ce tour.');
+      ensure(target.id !== g.lastSpeaker, 'Le Sénateur précédent ne peut pas être renommé immédiatement.');
+      if (alive(room).length > 5) ensure(target.id !== g.lastPresident, 'Le Premier ministre précédent est inéligible ce tour.');
       g.nominee = target.id; g.phase = 'vote'; g.votes = {};
     } else if (action === 'vote') {
       ensure(g.phase === 'vote' && !(p.id in g.votes) && typeof data.approve === 'boolean', 'Vote impossible ou déjà enregistré.');
@@ -108,7 +108,7 @@ export function councilAct(room, p, action, data = {}) {
         g.history.push({ type: 'election', president: g.currentPresident, speaker: g.nominee, approved, votes: { ...g.votes } });
         if (approved) {
           g.failed = 0;
-          if (g.policies.autorite >= 3 && g.nominee === g.pretender) finish(room, 'conspiration', 'Le Prétendant a été élu Orateur après trois décrets d’autorité.');
+          if (g.policies.autorite >= 3 && g.nominee === g.pretender) finish(room, 'conspiration', 'L’Autocrate a été élu Sénateur après trois décrets d’autorité.');
           else { g.phase = 'legislation-president'; g.hand = draw(room, 3); }
         } else {
           g.failed++;
@@ -117,26 +117,26 @@ export function councilAct(room, p, action, data = {}) {
         }
       }
     } else if (action === 'discard-president') {
-      ensure(g.phase === 'legislation-president' && pres.id === p.id, 'Seul le Premier Conseiller peut écarter ce décret.');
+      ensure(g.phase === 'legislation-president' && pres.id === p.id, 'Seul le Premier ministre peut écarter ce décret.');
       ensure(Number.isInteger(data.index) && data.index >= 0 && data.index < 3, 'Choisis un décret valide.');
       g.discard.push(g.hand.splice(data.index, 1)[0]); g.phase = 'legislation-speaker';
     } else if (action === 'discard-speaker') {
-      ensure(g.phase === 'legislation-speaker' && g.nominee === p.id, 'Seul l’Orateur peut promulguer le décret.');
+      ensure(g.phase === 'legislation-speaker' && g.nominee === p.id, 'Seul le Sénateur peut promulguer le décret.');
       ensure(Number.isInteger(data.index) && data.index >= 0 && data.index < 2, 'Choisis un décret valide.');
       g.discard.push(g.hand.splice(data.index, 1)[0]); const [policy] = g.hand; enact(room, policy);
     } else if (action === 'request-veto') {
       ensure(g.phase === 'legislation-speaker' && g.nominee === p.id && g.policies.autorite >= 5, 'Le veto n’est pas disponible.');
       g.vetoRequested = true; g.phase = 'veto';
     } else if (action === 'answer-veto') {
-      ensure(g.phase === 'veto' && pres.id === p.id && typeof data.approve === 'boolean', 'Seul le Premier Conseiller répond au veto.');
+      ensure(g.phase === 'veto' && pres.id === p.id && typeof data.approve === 'boolean', 'Seul le Premier ministre répond au veto.');
       if (data.approve) { g.discard.push(...g.hand); g.hand = []; g.lastPresident = g.currentPresident; g.lastSpeaker = g.nominee; g.failed++; if (g.failed >= 3) { const [policy] = draw(room,1); enact(room,policy,true); } else nextPresident(room); }
       else { g.vetoRequested = false; g.phase = 'legislation-speaker'; }
     } else if (action === 'power') {
-      ensure(g.phase === 'power' && pres.id === p.id, 'Ce pouvoir appartient au Premier Conseiller.');
+      ensure(g.phase === 'power' && pres.id === p.id, 'Ce pouvoir appartient au Premier ministre.');
       const target = room.players.find(x => x.id === data.player && x.alive && x.id !== p.id); ensure(target, 'Choisis un autre membre vivant.');
       if (g.power === 'inspect') { g.privateIntel[p.id] = { target: target.id, affiliation: g.roles[target.id] === 'gardien' ? 'republique' : 'conspiration' }; g.power = null; nextPresident(room); }
       else if (g.power === 'special-election') { g.power = null; nextPresident(room, target.id); }
-      else if (g.power === 'banish') { target.alive = false; g.power = null; if (target.id === g.pretender) finish(room, 'republique', 'Le Prétendant a été démasqué et banni.'); else nextPresident(room); }
+      else if (g.power === 'banish') { target.alive = false; g.power = null; if (target.id === g.pretender) finish(room, 'republique', 'L’Autocrate a été démasqué et banni.'); else nextPresident(room); }
       else throw new CouncilError('Pouvoir inconnu.');
     } else throw new CouncilError('Action inconnue.');
   }
