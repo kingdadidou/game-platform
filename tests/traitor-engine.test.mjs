@@ -10,3 +10,23 @@ test('three Planche cards reveal and eliminate a player',()=>{const room=roomWit
 test('a Pirate claim reveals a sufficient chest',()=>{const room=roomWith(),pirate=room.players.find(p=>room.game.roles[p.id]==='pirate');setTurn(room,pirate);room.game.chest=Array.from({length:room.game.target},(_,i)=>({id:`c${i}`,type:'loot',value:1}));act(room,pirate,'claim');assert.equal(room.game.winner,'pirates');assert.equal(room.game.revealedChestTotal,room.game.target)});
 test('mutins win at parity and when the draw pile is empty',()=>{const room=roomWith(3),mutin=room.players.find(p=>room.game.roles[p.id]==='mutin'),pirate=room.players.find(p=>room.game.roles[p.id]==='pirate');setTurn(room,mutin);room.game.hands[mutin.id]=[{id:'p',type:'plank'}];room.game.planks[pirate.id]=2;act(room,mutin,'playAction',{cardId:'p',target:pirate.id});assert.equal(room.game.winner,'mutins');const room2=roomWith(3),p=room2.players[room2.game.turnIndex];room2.game.drawPile=[];room2.game.hands[p.id]=[{id:'l',type:'loot',value:0}];act(room2,p,'playLoot',{cardId:'l',announced:0});assert.equal(room2.game.winner,'mutins')});
 test('Longue-vue and Pêche miraculeuse require private ordering choices',()=>{const room=roomWith(),p=room.players[room.game.turnIndex];room.game.chest=[{id:'a',type:'loot',value:1},{id:'b',type:'loot',value:0},{id:'c',type:'loot',value:-2}];room.game.hands[p.id]=[{id:'spy',type:'spyglass'}];act(room,p,'playAction',{cardId:'spy'});assert.equal(room.game.phase,'reorder-chest');assert.equal(traitorView(room,p).game.pending.cards.length,3);act(room,p,'resolveOrder',{order:room.game.pending.cards.map(c=>c.id)});setTurn(room,p);room.game.hands[p.id]=[{id:'fish',type:'miraculousCatch'},{id:'x',type:'loot',value:1},{id:'y',type:'loot',value:0}];act(room,p,'playAction',{cardId:'fish'});assert.equal(room.game.phase,'return-draw');assert.equal(room.game.hands[p.id].length,5);act(room,p,'resolveOrder',{order:room.game.hands[p.id].slice(0,2).map(c=>c.id)});assert.equal(room.game.hands[p.id].length,3)});
+
+test('only the latest announcement is public and private hands remain available off turn',()=>{
+ const room=roomWith(4),actor=room.players[0],observer=room.players[1];
+ setTurn(room,actor);
+ room.game.hands[actor.id]=[{id:'bluff',type:'loot',value:-2}];
+ act(room,actor,'playLoot',{cardId:'bluff',announced:1});
+ let view=traitorView(room,observer).game;
+ assert.deepEqual(view.lastPlay,{player:actor.id,type:'loot',announced:1,turn:1});
+ assert.ok(!('log' in view));
+ assert.ok(!('hands' in view));
+ assert.equal(view.hand.length,3);
+ const next=room.players[room.game.turnIndex];
+ room.game.hands[next.id]=[{id:'action',type:'emptyPockets'}];
+ act(room,next,'playAction',{cardId:'action',target:actor.id});
+ view=traitorView(room,observer).game;
+ assert.equal(view.lastPlay.label,'Vide tes poches');
+ assert.equal(view.lastPlay.target,actor.id);
+ assert.ok(!('announced' in view.lastPlay));
+ assert.equal(view.hand.length,1);
+});
