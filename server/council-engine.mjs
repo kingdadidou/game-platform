@@ -108,7 +108,7 @@ export function councilAct(room, p, action, data = {}) {
         g.history.push({ type: 'election', president: g.currentPresident, speaker: g.nominee, approved, votes: { ...g.votes } });
         if (approved) {
           g.failed = 0;
-          if (g.policies.autorite >= 3 && g.nominee === g.pretender) finish(room, 'conspiration', 'L’Autocrate a été élu Sénateur après trois décrets d’autorité.');
+          if (g.policies.autorite >= 3 && g.nominee === g.pretender) finish(room, 'conspiration', 'Le Dictateur a été élu Sénateur après trois décrets d’autorité.');
           else { g.phase = 'legislation-president'; g.hand = draw(room, 3); }
         } else {
           g.failed++;
@@ -136,7 +136,7 @@ export function councilAct(room, p, action, data = {}) {
       const target = room.players.find(x => x.id === data.player && x.alive && x.id !== p.id); ensure(target, 'Choisis un autre membre vivant.');
       if (g.power === 'inspect') { g.privateIntel[p.id] = { target: target.id, affiliation: g.roles[target.id] === 'gardien' ? 'republique' : 'conspiration' }; g.power = null; nextPresident(room); }
       else if (g.power === 'special-election') { g.power = null; nextPresident(room, target.id); }
-      else if (g.power === 'banish') { target.alive = false; g.power = null; if (target.id === g.pretender) finish(room, 'republique', 'L’Autocrate a été démasqué et banni.'); else nextPresident(room); }
+      else if (g.power === 'banish') { target.alive = false; g.power = null; if (target.id === g.pretender) finish(room, 'republique', 'Le Dictateur a été démasqué et banni.'); else nextPresident(room); }
       else throw new CouncilError('Pouvoir inconnu.');
     } else throw new CouncilError('Action inconnue.');
   }
