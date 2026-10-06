@@ -150,3 +150,5 @@
     top: 1.5%;
   }
 }
+
+.metro-market,.metro-asset-detail{grid-column:1/-1;padding:20px;border:2px solid #284947;background:#fff5dd;color:#243c38;border-radius:14px}.metro-market h2,.metro-asset-detail h2{margin:0 0 12px}.metro-market>p,.metro-asset-detail p{font-size:13px;line-height:1.5}.metro-market details{padding:12px 0;border-top:1px solid #28494744}.metro-market summary{cursor:pointer;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}.market-assets{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.rent-ladder{display:flex;flex-wrap:wrap;gap:8px}.rent-ladder span{flex:1;min-width:85px;padding:10px;background:#e3ebdb;border-radius:8px;font-size:11px}.rent-ladder b{display:block;font-size:17px;margin-top:5px}.metro-node[role="button"]{cursor:pointer}.metro-node[role="button"]:focus-visible{outline:3px solid #142e59;outline-offset:3px}
