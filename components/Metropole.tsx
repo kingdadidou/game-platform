@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import MetroTradeDesk from './MetroTradeDesk';
-import { DEPARTMENTS, DEPARTMENT_ORDER } from '@/lib/metro-departments.mjs';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import {
   GROUP_COLORS,
@@ -1316,7 +1315,6 @@ export default function Metropole() {
       AVANT LA PARTIE
       ============================================= */}
 
-  <div className="department-legend" aria-label="Couleurs des départements">{DEPARTMENT_ORDER.map(code=>{const department=DEPARTMENTS[code as keyof typeof DEPARTMENTS];return <span key={code}><i style={{background:department.color}}/><b>{code}</b> {department.name}</span>;})}</div>
   {!g ? (
 
     <div className="metro-action">
@@ -1732,7 +1730,7 @@ export default function Metropole() {
                 =============================================== */}
 
             {g&&<section className="metro-market"><h2>LE MARCHÉ EN UN COUP D’ŒIL</h2><p>Classement par patrimoine total · trésorerie et valeur des biens et constructions.</p>{room.players.slice().sort((a,b)=>g.worth[b.id]-g.worth[a.id]).map((p,i)=><details key={p.id}><summary><b>{i+1}. {p.name}</b><span>{g.money[p.id]} M disponibles · {g.worth[p.id]} M de patrimoine</span></summary><div className="market-assets">{Object.entries(g.owners).filter(([,owner])=>owner===p.id).map(([id])=><button key={id} onClick={()=>setInspected(id)}>{assets[id]?.name} · {g.houses[id]??0} maison(s){g.mortgages[id]?" · Hypothéqué":""}</button>)}{!Object.values(g.owners).includes(p.id)&&<p>Aucun bien acquis.</p>}</div></details>)}</section>}
-{inspected&&assets[inspected]&&<section className="metro-asset-detail" aria-label="Fiche du bien"><button className="metro-light" onClick={()=>setInspected(null)}>Fermer la fiche</button><h2>{assets[inspected].name}</h2>{assets[inspected].department&&<p>{assets[inspected].city} · {DEPARTMENTS[assets[inspected].department as keyof typeof DEPARTMENTS].name} ({assets[inspected].department})</p>}<p>{g?.owners[inspected]?`Propriétaire : ${playerName(g.owners[inspected])}` :assets[inspected].price?"Disponible à la banque":"Case fonctionnelle — non achetable"}</p>{assets[inspected].price&&<><p>Prix : <b>{assets[inspected].price} M</b> · Hypothèque : {Math.floor(assets[inspected].price!/2)} M</p><p>{g?.mortgages[inspected]?"Hypothéqué : aucun loyer.":`Loyer de base : ${assets[inspected].rent??55} M`}</p>{assets[inspected].group&&<><p>Quartier : {Object.values(nodes).filter(n=>n.group===assets[inspected].group&&g?.owners[n.id]===room.me).length}/{Object.values(nodes).filter(n=>n.group===assets[inspected].group).length} biens en votre possession.</p><p>Maison : {Math.floor(assets[inspected].price!/2)} M · {g?.houses[inspected]??0}/4 construites</p><div className="rent-ladder">{[0,1,2,3,4].map(count=><span key={count}>{count===0?"Sans maison":`${count} maison(s)`}<b>{Math.round((assets[inspected].rent??55)*(1+count))} M</b></span>)}</div><p>Quartier complet sans maison : loyer doublé si cette option est activée. Construisez avant les dés, en possédant tout le quartier.</p></>}</>}</section>}<aside className="metro-chat">
+{inspected&&assets[inspected]&&<section className="metro-asset-detail" aria-label="Fiche du bien"><button className="metro-light" onClick={()=>setInspected(null)}>Fermer la fiche</button><h2>{assets[inspected].name}</h2><p>{g?.owners[inspected]?`Propriétaire : ${playerName(g.owners[inspected])}` :assets[inspected].price?"Disponible à la banque":"Case fonctionnelle — non achetable"}</p>{assets[inspected].price&&<><p>Prix : <b>{assets[inspected].price} M</b> · Hypothèque : {Math.floor(assets[inspected].price!/2)} M</p><p>{g?.mortgages[inspected]?"Hypothéqué : aucun loyer.":`Loyer de base : ${assets[inspected].rent??55} M`}</p>{assets[inspected].group&&<><p>Quartier : {Object.values(nodes).filter(n=>n.group===assets[inspected].group&&g?.owners[n.id]===room.me).length}/{Object.values(nodes).filter(n=>n.group===assets[inspected].group).length} biens en votre possession.</p><p>Maison : {Math.floor(assets[inspected].price!/2)} M · {g?.houses[inspected]??0}/4 construites</p><div className="rent-ladder">{[0,1,2,3,4].map(count=><span key={count}>{count===0?"Sans maison":`${count} maison(s)`}<b>{Math.round((assets[inspected].rent??55)*(1+count))} M</b></span>)}</div><p>Quartier complet sans maison : loyer doublé si cette option est activée. Construisez avant les dés, en possédant tout le quartier.</p></>}</>}</section>}<aside className="metro-chat">
 
               <h2>
                 CAFÉ DES AFFAIRES
