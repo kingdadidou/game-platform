@@ -11,6 +11,8 @@ import {
 } from '@/lib/metro-board.mjs';
 
 
+import * as CLASSIC from '@/lib/metro-classic-board.mjs';
+
 type Player = {
   id: string;
   name: string;
@@ -78,6 +80,7 @@ type Room = {
     text: string;
   }[];
   settings: {
+    map?: 'network' | 'classic';
     startingCash: number;
     auction: boolean;
     doubleRent: boolean;
@@ -111,7 +114,7 @@ type BoardNode = {
   rent?: number;
 };
 
-const stations = STATIONS as Record<
+const networkStations = STATIONS as Record<
   string,
   {
     id: string;
@@ -125,7 +128,7 @@ const stations = STATIONS as Record<
   }
 >;
 
-const routes = ROUTES as Record<
+const networkRoutes = ROUTES as Record<
   string,
   {
     name: string;
@@ -135,12 +138,12 @@ const routes = ROUTES as Record<
   }
 >;
 
-const nodes = NODE_BY_ID as Record<string, BoardNode>;
-const assets = { ...nodes, ...stations } as Record<string, BoardNode>;
+const networkNodes = NODE_BY_ID as Record<string, BoardNode>;
 
-const groupColors = GROUP_COLORS as Record<string, string>;
 
-const visualNodes = UNIQUE_NODES as BoardNode[];
+const networkColors = GROUP_COLORS as Record<string, string>;
+
+const networkVisualNodes = UNIQUE_NODES as BoardNode[];
 
 
 export default function Metropole() {
@@ -407,6 +410,13 @@ export default function Metropole() {
      DONNÉES DE PARTIE
      ========================================================= */
 
+  const classic = room?.settings.map === 'classic';
+  const stations = classic ? {} as typeof networkStations : networkStations;
+  const routes = classic ? CLASSIC.ROUTES as typeof networkRoutes : networkRoutes;
+  const nodes = classic ? CLASSIC.NODE_BY_ID as Record<string, BoardNode> : networkNodes;
+  const assets = { ...nodes, ...stations } as Record<string, BoardNode>;
+  const visualNodes = classic ? CLASSIC.UNIQUE_NODES as BoardNode[] : networkVisualNodes;
+  const groupColors = classic ? CLASSIC.GROUP_COLORS as Record<string, string> : networkColors;
   const g = room?.game;
 
   const playerName = (
@@ -1062,7 +1072,7 @@ export default function Metropole() {
 <section className="metro-board-wrap">
 
   <div
-    className="metro-board"
+    className={`metro-board ${classic ? "classic-board" : "network-board"}`}
     aria-label="Plateau de la Métropole"
   >
 
@@ -1117,6 +1127,7 @@ export default function Metropole() {
         CASES
         =========================================== */}
 
+    {classic && <div className="classic-board-title"><strong>MÉTROPOLE</strong><span>CLASSIQUE · 40 CASES</span><p>Départ en haut à gauche · sens horaire →<br/>200 M par tour complet</p></div>}
     {visualNodes.map(
       node => (
 
@@ -1185,6 +1196,7 @@ export default function Metropole() {
           </span>
 
 
+          {classic && <small className="classic-case-name">{node.name}</small>}
           {g?.owners[node.id] && (
 
             <i className="owner-mark"
@@ -1311,6 +1323,13 @@ export default function Metropole() {
 
       <div className="game-settings">
         <h3>RÉGLAGES DE LA PARTIE</h3>
+        <label>Carte de la partie
+          <select value={room.settings.map ?? 'network'} disabled={room.host !== room.me || busy} onChange={e => {setInspected(null); updateSettings({map:e.target.value as 'network' | 'classic'});}}>
+            <option value="network">Métropole — réseau et embranchements</option>
+            <option value="classic">Métropole — rectangle classique (40 cases)</option>
+          </select>
+        </label>
+        <p>{classic ? 'Circuit unique · 8 quartiers · 4 gares · salaire de 200 M à chaque tour. Les coins sont des pauses, sans prison.' : 'Carte originale avec choix de direction aux gares.'} Changer de carte annule les confirmations « prêt ».</p>
         <label>
           Capital de départ
           <select
@@ -1864,7 +1883,7 @@ export default function Metropole() {
         <div>
 
           <p>
-            Chaque tour, choisissez votre itinéraire à la gare puis lancez le dé.
+            Sur la carte réseau, choisissez votre itinéraire aux gares. Sur la carte classique, avancez sur un circuit de 40 cases : les gares sont des biens à acheter, sans embranchement. Recevez 200 M en passant par le départ, une seule fois par tour de plateau. Les coins sont des pauses, sans prison ; les taxes coûtent 100 ou 200 M.
             Achetez les quartiers disponibles et percevez un loyer quand un
             adversaire s’y arrête. Posséder tout un quartier coloré double ses
             loyers.
