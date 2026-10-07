@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import MetroAnimatedToken from './MetroAnimatedToken';
 import MetroTradeDesk from './MetroTradeDesk';
 import MetroStockExchange, { type StockMarket } from './MetroStockExchange';
 import { FormEvent, useEffect, useRef, useState } from 'react';
@@ -28,6 +29,7 @@ type Position = {
 };
 
 type MetroGame = {
+  movement?: {id:number;player:string;path:string[]}|null;
   market: StockMarket | null;
   stockActions: number;
   stockWorth: Record<string, number>;
@@ -44,6 +46,8 @@ type MetroGame = {
     id: string;
     from: string;
     to: string;
+    offerStocks?: Record<string,number>;
+    wantStocks?: Record<string,number>;
     offerNode?: string;
     offerNodes?: string[];
     offerCash?: number;
@@ -171,6 +175,7 @@ export default function Metropole() {
 
   const [message, setMessage] = useState('');
   const [bidAmount, setBidAmount] = useState('');
+  const [marketOpen,setMarketOpen]=useState(true);
   const [inspected, setInspected] = useState<string | null>(null);
 
   const lock = useRef(false);
@@ -1138,7 +1143,7 @@ export default function Metropole() {
           key={node.id}
 
           className={
-            `metro-node ${node.type} ${g?.owners[node.id] ? 'owned' : ''} ${g?.mortgages[node.id] ? 'mortgaged' : ''}`
+            `metro-node ${node.type} ${g?.owners[node.id] ? 'owned' : ''} ${g?.mortgages[node.id] ? 'mortgaged' : ''} ${g?.lastLanding===node.id?'last-arrival':''}`
           }
 
           style={{
@@ -1217,7 +1222,7 @@ export default function Metropole() {
           )}
 
           {(g?.houses[node.id] ?? 0) > 0 && (
-            <b className="house-stack">{'⌂'.repeat(g!.houses[node.id])}</b>
+            <b key={g?.houses[node.id]} className="house-stack">{'⌂'.repeat(g!.houses[node.id])}</b>
           )}
 
         </div>
@@ -1241,10 +1246,7 @@ export default function Metropole() {
 
           return (
 
-            <div
-              key={p.id}
-
-              className="metro-token"
+            <MetroAnimatedToken key={p.id} position={pos} movement={g.movement?.player===p.id?g.movement:undefined} assets={assets} className="metro-token"
 
               style={{
 
@@ -1275,7 +1277,7 @@ export default function Metropole() {
                 .slice(0, 1)
                 .toUpperCase()}
 
-            </div>
+            </MetroAnimatedToken>
 
           );
 
@@ -1319,7 +1321,7 @@ export default function Metropole() {
       AVANT LA PARTIE
       ============================================= */}
 
-  {g?.phase==='investment'&&<div className="metro-action stock-visit"><h3>Entreprise cotée · {assets[g.pending?.node??'']?.name}</h3><p>Vous pouvez investir avant de continuer votre tour. <a href="#metro-bourse">Ouvrir la Bourse ↓</a></p><button disabled={busy||!myTurn} onClick={()=>action('close-market')}>Continuer après la visite</button></div>}
+  {g?.phase==='investment'&&<div className="metro-action stock-visit"><h3>Entreprise cotée · {assets[g.pending?.node??'']?.name}</h3><p>Vous pouvez investir avant de continuer votre tour. <a href="#metro-bourse" onClick={()=>setMarketOpen(true)}>Ouvrir la Bourse ↓</a></p><button disabled={busy||!myTurn} onClick={()=>action('close-market')}>Continuer après la visite</button></div>}
   {!g ? (
 
     <div className="metro-action">
@@ -1426,7 +1428,7 @@ export default function Metropole() {
       </header>
 
       {g.lastRoll && (
-        <div className={`dice-result ${g.lastRoll.isDouble ? 'is-double' : ''}`}>
+        <div key={`${g.movement?.id}-${g.lastRoll.player}`} className={`dice-result ${g.lastRoll.isDouble ? 'is-double' : ''}`}>
           <span className="die">{g.lastRoll.dice[0]}</span>
           <span className="die">{g.lastRoll.dice[1]}</span>
           <b>
@@ -1437,7 +1439,7 @@ export default function Metropole() {
       )}
 
 
-      <p className="city-news">
+      <p key={g.lastEvent} className="city-news" role="status">
         {g.lastEvent}
       </p>
 
@@ -1734,7 +1736,7 @@ export default function Metropole() {
                 CHAT
                 =============================================== */}
 
-            {g?.market&&<MetroStockExchange market={g.market} me={room.me} current={g.current} phase={g.phase} cash={g.money[room.me]} stockActions={g.stockActions} busy={busy} players={room.players} stockWorth={g.stockWorth} action={action}/>}
+            {g?.market&&<MetroStockExchange open={marketOpen} onToggle={()=>setMarketOpen(!marketOpen)} market={g.market} me={room.me} current={g.current} phase={g.phase} cash={g.money[room.me]} stockActions={g.stockActions} busy={busy} players={room.players} stockWorth={g.stockWorth} action={action}/>}
             {g&&<section className="metro-market"><h2>LE MARCHÉ EN UN COUP D’ŒIL</h2><p>Classement par patrimoine total · trésorerie, biens, constructions et actions au cours actuel.</p>{room.players.slice().sort((a,b)=>g.worth[b.id]-g.worth[a.id]).map((p,i)=><details key={p.id}><summary><b>{i+1}. {p.name}</b><span>{g.money[p.id]} M disponibles · {g.worth[p.id]} M de patrimoine{g.stockWorth?.[p.id]>0?` · ${g.stockWorth[p.id]} M en actions`:""}</span></summary><div className="market-assets">{Object.entries(g.owners).filter(([,owner])=>owner===p.id).map(([id])=><button key={id} onClick={()=>setInspected(id)}>{assets[id]?.name} · {g.houses[id]??0} maison(s){g.mortgages[id]?" · Hypothéqué":""}</button>)}{!Object.values(g.owners).includes(p.id)&&<p>Aucun bien acquis.</p>}</div></details>)}</section>}
 {inspected&&assets[inspected]&&<section className="metro-asset-detail" aria-label="Fiche du bien"><button className="metro-light" onClick={()=>setInspected(null)}>Fermer la fiche</button><h2>{assets[inspected].name}</h2>{g?.market?.stocks[inspected]&&<p>Entreprise cotée : {g.market.stocks[inspected].price} M par action · <a href="#metro-bourse">Voir la Bourse</a></p>}<p>{g?.owners[inspected]?`Propriétaire : ${playerName(g.owners[inspected])}` :g?.market?.stocks[inspected]?"Actions disponibles en Bourse":assets[inspected].price?"Disponible à la banque":"Case fonctionnelle — non achetable"}</p>{assets[inspected].price&&!g?.market?.stocks[inspected]&&<><p>Prix : <b>{assets[inspected].price} M</b> · Hypothèque : {Math.floor(assets[inspected].price!/2)} M</p><p>{g?.mortgages[inspected]?"Hypothéqué : aucun loyer.":`Loyer de base : ${assets[inspected].rent??55} M`}</p>{assets[inspected].group&&<><p>Quartier : {Object.values(nodes).filter(n=>n.group===assets[inspected].group&&g?.owners[n.id]===room.me).length}/{Object.values(nodes).filter(n=>n.group===assets[inspected].group).length} biens en votre possession.</p><p>Maison : {Math.floor(assets[inspected].price!/2)} M · {g?.houses[inspected]??0}/4 construites</p><div className="rent-ladder">{[0,1,2,3,4].map(count=><span key={count}>{count===0?"Sans maison":`${count} maison(s)`}<b>{Math.round((assets[inspected].rent??55)*(1+count))} M</b></span>)}</div><p>Quartier complet sans maison : loyer doublé si cette option est activée. Construisez avant les dés, en possédant tout le quartier.</p></>}</>}</section>}<aside className="metro-chat">
 
@@ -1823,7 +1825,7 @@ export default function Metropole() {
 
         <summary>
           Règles de Métropole
-        </summary><p><b>Bourse :</b> chaque entreprise émet 100 actions. Achetez ou vendez à votre tour avant les dés, ou sur une case Entreprise. Trois opérations par tour ; frais de 2 % (minimum 1 M). Vendre reste possible pour régler une dette. Les cours évoluent avec la nouvelle journée, les événements, les constructions et les transactions. Les dividendes sont versés à l’ouverture de chaque journée suivante jusqu’à la 20e. Votre patrimoine inclut les actions au cours actuel. Les anciennes parties conservent leurs entreprises achetables.</p>
+        </summary><p><b>Bourse :</b> chaque entreprise émet 100 actions. Achetez ou vendez à votre tour avant les dés, ou sur une case Entreprise. Opérations sans limite à votre tour ; frais de 2 % (minimum 1 M). Vendre reste possible pour régler une dette. Les cours évoluent avec la nouvelle journée, les événements, les constructions et les transactions. Les dividendes sont versés à l’ouverture de chaque journée suivante jusqu’à la 20e. Votre patrimoine inclut les actions au cours actuel. Les anciennes parties conservent leurs entreprises achetables.</p>
 
         <div>
 
