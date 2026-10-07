@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import MetroTradeDesk from './MetroTradeDesk';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import {
   GROUP_COLORS,
@@ -39,8 +40,12 @@ type MetroGame = {
     id: string;
     from: string;
     to: string;
-    offerNode: string;
-    wantNode: string;
+    offerNode?: string;
+    offerNodes?: string[];
+    offerCash?: number;
+    wantNode?: string;
+    wantNodes?: string[];
+    wantCash?: number;
   }[];
   auction: {
     node: string;
@@ -159,8 +164,6 @@ export default function Metropole() {
   const [busy, setBusy] = useState(false);
 
   const [message, setMessage] = useState('');
-  const [tradeOffer, setTradeOffer] = useState('');
-  const [tradeWant, setTradeWant] = useState('');
   const [bidAmount, setBidAmount] = useState('');
   const [inspected, setInspected] = useState<string | null>(null);
 
@@ -388,6 +391,7 @@ export default function Metropole() {
 
       }
 
+      return true;
     } catch (err) {
 
       setError(
@@ -451,14 +455,6 @@ export default function Metropole() {
           )
 
       : [];
-
-  const myTradeAssets = myProperties.filter(Boolean);
-  const otherTradeAssets = g
-    ? Object.entries(g.owners)
-        .filter(([, owner]) => owner !== room?.me)
-        .map(([id, owner]) => ({ ...assets[id], owner }))
-        .filter(item => item.id)
-    : [];
 
   const ownsGroup = (node: BoardNode) => {
     if (!g || !node.group) return false;
@@ -1739,66 +1735,7 @@ export default function Metropole() {
               </h2>
 
               {g && g.phase !== 'finished' && (
-                <div className="trade-desk">
-                  <h3>ÉCHANGER DES PROPRIÉTÉS</h3>
-
-                  <select
-                    aria-label="Votre propriété proposée"
-                    value={tradeOffer}
-                    onChange={e => setTradeOffer(e.target.value)}
-                  >
-                    <option value="">Votre bien…</option>
-                    {myTradeAssets.map(item => (
-                      <option key={item.id} value={item.id}>{item.name}</option>
-                    ))}
-                  </select>
-
-                  <select
-                    aria-label="Propriété demandée"
-                    value={tradeWant}
-                    onChange={e => setTradeWant(e.target.value)}
-                  >
-                    <option value="">Bien demandé…</option>
-                    {otherTradeAssets.map(item => (
-                      <option key={item.id} value={item.id}>
-                        {item.name} · {playerName(item.owner)}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    disabled={!tradeOffer || !tradeWant || busy}
-                    onClick={() => {
-                      const wanted = otherTradeAssets.find(item => item.id === tradeWant);
-                      if (!wanted) return;
-                      void action('propose-trade', {
-                        offerNode: tradeOffer,
-                        wantNode: tradeWant,
-                        to: wanted.owner
-                      });
-                      setTradeOffer('');
-                      setTradeWant('');
-                    }}
-                  >
-                    Proposer l’échange
-                  </button>
-
-                  {g.tradeOffers.map(offer => (
-                    <div className="trade-offer" key={offer.id}>
-                      <b>{playerName(offer.from)} propose</b>
-                      <span>{assets[offer.offerNode]?.name} ⇄ {assets[offer.wantNode]?.name}</span>
-                      {offer.to === room.me && (
-                        <div>
-                          <button onClick={() => action('accept-trade', { offerId: offer.id })}>Accepter</button>
-                          <button className="metro-light" onClick={() => action('reject-trade', { offerId: offer.id })}>Refuser</button>
-                        </div>
-                      )}
-                      {offer.from === room.me && (
-                        <button className="metro-light" onClick={() => action('reject-trade', { offerId: offer.id })}>Annuler</button>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <MetroTradeDesk game={g} players={room.players} me={room.me} assets={assets} colors={groupColors} busy={busy} action={action} />
               )}
 
 
