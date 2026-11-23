@@ -1,3 +1,4 @@
+import PublicGameGuide from '@/components/PublicGameGuide';
 import type { Metadata } from 'next';
 import LastCouncil from '@/components/LastCouncil';
 
@@ -7,4 +8,4 @@ export const metadata: Metadata = {
   alternates: { canonical: '/dernier-conseil' }
 };
 
-export default function Page() { return <LastCouncil/>; }
+export default function Page() { return <><PublicGameGuide slug="dernier-conseil"/><LastCouncil/></>; }

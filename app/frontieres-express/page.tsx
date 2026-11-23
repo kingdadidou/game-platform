@@ -1,3 +1,4 @@
+import PublicGameGuide from '@/components/PublicGameGuide';
 import type { Metadata } from 'next';
 import FrontierExpress from '@/components/FrontierExpress';
 
@@ -7,4 +8,4 @@ export const metadata: Metadata = {
   alternates: { canonical: '/frontieres-express' }
 };
 
-export default function FrontierPage(){return <FrontierExpress/>}
+export default function FrontierPage(){return <><PublicGameGuide slug="frontieres-express"/><FrontierExpress/></>}

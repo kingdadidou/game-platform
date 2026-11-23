@@ -1,3 +1,4 @@
+import PublicGameGuide from '@/components/PublicGameGuide';
 import type { Metadata } from 'next';
 import Lobby from '@/components/Lobby';
 
@@ -7,4 +8,4 @@ export const metadata: Metadata = {
   alternates: { canonical: '/lobby' }
 };
 
-export default function Page() { return <Lobby/>; }
+export default function Page() { return <><PublicGameGuide slug="conseil-des-ombres"/><Lobby/></>; }

@@ -1,3 +1,4 @@
+import PublicGameGuide from '@/components/PublicGameGuide';
 import type { Metadata } from 'next';
 import TraitorAboard from '@/components/TraitorAboard';
 
@@ -7,4 +8,4 @@ export const metadata: Metadata = {
   alternates: { canonical: '/traitre-a-bord' }
 };
 
-export default function TraitorPage(){return <TraitorAboard/>}
+export default function TraitorPage(){return <><PublicGameGuide slug="traitres-a-bord"/><TraitorAboard/></>}

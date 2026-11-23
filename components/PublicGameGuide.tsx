@@ -1,0 +1,2 @@
+import Link from 'next/link';import {guides} from '@/lib/public-guides';
+export default function PublicGameGuide({slug}:{slug:string}){const g=guides.find(g=>g.slug===slug)!;return <section className="public-game-guide" aria-label={'Découvrir '+g.title}><div><span>{g.players} · Guide accessible sans salon</span><h2>Comment jouer à {g.title} ?</h2><p>{g.intro}</p></div><Link href={'/guides/'+g.slug}>Règles, exemples et conseils →</Link><Link href="/guides">Comparer les cinq jeux</Link></section>}

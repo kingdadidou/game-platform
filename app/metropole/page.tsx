@@ -1,3 +1,4 @@
+import PublicGameGuide from '@/components/PublicGameGuide';
 import type { Metadata } from 'next';
 import Metropole from '@/components/Metropole';
 
@@ -7,4 +8,4 @@ export const metadata: Metadata = {
   alternates: { canonical: '/metropole' }
 };
 
-export default function Page(){return <Metropole/>}
+export default function Page(){return <><PublicGameGuide slug="metropole"/><Metropole/></>}
